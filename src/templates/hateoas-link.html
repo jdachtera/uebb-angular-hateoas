@@ -1,0 +1,13 @@
+<div>
+    <div ng-show="promise.isFulfilled()" class="transclude-content"></div>
+
+    <div ng-if="!disableSpinner && (!promise || promise.isPending())">
+        <span class="fa fa-spinner fa-spin"></span> {{ labelPrefix + '.loading' }}
+    </div>
+
+    <div ng-if="promise.isRejected()">
+        {{ labelPrefix + '.error' }}
+    </div>
+
+
+</div>

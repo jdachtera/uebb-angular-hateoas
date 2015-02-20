@@ -1,0 +1,69 @@
+<div ng-show="if !== false" class="hateoas-list">
+
+	<div ng-show="orderFields" class="element-spacing-small">
+		{{ 'general.list.order.label' | translate }} &nbsp;&nbsp;&nbsp;
+		<div class="btn-group">
+			<a href data-toggle="dropdown" class="btn btn-link dropdown-toggle">
+				<i class="fa fa-fw fa-sort"></i>{{ labelPrefix + '.field.' + orderField | translate }} <span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu" role="menu">
+				<li ng-repeat="field in orderFields" ng-class="{'active': orderField == field}">
+					<a dropdown-toggle href ng-click="setOrder(field, orderDirection)"><i class="fa fa-fw fa-sort"></i>{{ labelPrefix + '.field.' + field | translate }} </a>
+				</li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<a href data-toggle="dropdown" class="btn btn-link dropdown-toggle">
+				<i class="fa fa-fw" ng-class="{'fa-sort-amount-asc': orderDirection == 'ASC', 'fa-sort-amount-desc': orderDirection == 'DESC'}"></i>{{ 'general.list.direction.' + orderDirection | translate }} <span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu" role="menu">
+				<li ng-class="{'active': orderDirection == 'ASC'}">
+					<a dropdown-toggle href ng-click="setOrder(orderField, 'ASC')"><i class="fa fa-fw fa-sort-amount-asc"></i>{{ 'general.list.order.direction.ASC' | translate }}</a>
+				</li>
+				<li ng-class="{'active': orderDirection == 'DESC'}">
+					<a dropdown-toggle href ng-click="setOrder(orderField, 'DESC')"><i class="fa fa-fw fa-sort-amount-desc"></i>{{ 'general.list.order.direction.DESC' | translate }}</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+
+	<div class="response element-spacing-small" ng-show="!disableMessages">
+
+		<div ng-show="!disableSpinner && (!promise || promise.isPending())">
+			<span class="fa fa-spinner fa-spin"></span> {{ labelPrefix + '.loading' | translate }}
+		</div>
+
+		<div ng-show="transcludeScope.error">
+			{{ labelPrefix + '.error' | translate }}
+			{{trancludeScope.error}}
+		</div>
+
+		<div ng-show="promise.isResolved() && !transcludeScope.error && transcludeScope[as || rel].length === 0">
+			{{ labelPrefix + '.empty' | translate }}
+		</div>
+
+	</div>
+
+	<div ng-show="promise.isResolved() && !transcludeScope.error" class="hateoas-list-items transclude-content"></div>
+
+	<div class="hateoas-pagination">
+		<pagination
+				class="pagination-sm"
+				ng-show="!disablePagination && pages > 1"
+				total-items="pages * limit"
+				items-per-page="limit"
+				ng-model="page"
+				previous-text="&lt;"
+				next-text="&gt;"
+				first-text="&lt;&lt;"
+				last-text="&gt;&gt;"
+				boundary-links="true"
+				max-size="3"
+				rotate="false">
+		</pagination>
+	</div>
+
+</div>
+
+<div ng-show="bare" class="transclude-bare"></div>

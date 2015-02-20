@@ -1,0 +1,61 @@
+<div class="select-file">
+    <mandator>
+
+        <hateoas-list disable-pagination="true" disable-messages="true" resource="resource" limit="0" rel="{{rel}}" as="existingFiles" update="data.updateExisting">
+            <div ng-if="existingFiles.length > 0" class="existing-files">
+                <h5>{{ 'file.label.existingFiles' | translate }}</h5>
+                <ul>
+                    <li ng-repeat="file in existingFiles">
+
+                        {{ file.name }} ({{file.size | filesize}})
+                        <a class="btn-pointer" delete-resource="file" on-delete="data.updateExisting = true" label="resource.name">
+                            <i class="fa fa-trash-o" tooltip="{{ 'file.label.delete' | translate }}"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </hateoas-list>
+
+        <!--
+        <ul hateoas-list disable-pagination="true" disable-messages="true" resource="resource" rel="{{rel}}" as="existingFiles" update="data.updateExisting">
+            <li ng-repeat="file in existingFiles">
+
+                {{ file.name }} ({{file.size | filesize}})
+                <a class="btn-pointer" delete-resource="file" on-delete="data.updateExisting = true" label="resource.name">
+                    <i class="fa fa-trash-o" tooltip="{{ 'file.label.delete' | translate }}"></i>
+                </a>
+            </li>
+        </ul>
+        -->
+
+        <div ng-if="files.length > 0" class="new-files">
+            <h5>{{ 'file.label.newFiles' | translate }}</h5>
+            <ul>
+                <li ng-repeat="file in files">
+                    <span ng-class="{'text-danger' : getFileErrors(file) !== null}">{{file.uploadedFile.name}} ({{file.uploadedFile.size | filesize}})</span>
+
+                    <span ng-if="file.$newVersion">
+                        &nbsp; <span tooltip="{{ 'file.label.newVersion' | translate }}" tooltip-append-to-body="true" class="btn-help"><i class="fa fa-asterisk"></i></span> &nbsp;
+                    </span>
+
+                    <a title="remove" class="btn-pointer" ng-click="files.splice(files.indexOf(file), 1)">
+                        <i class="fa fa-times" tooltip="{{ 'file.label.delete' | translate }}"></i>
+                    </a>
+
+                    <div class="help-block" ng-if="getFileErrors(file) !== null">
+                        <ul>
+                            <li ng-repeat="message in getFileErrors(file).uploadedFile.errors" translate="{{ message }}" translate-values="{mandator: mandator}"></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <span class="btn btn-default btn-file">
+            {{ label | translate }} <input type="file" accept="{{ mimeTypes }}" />
+        </span>
+
+
+    </mandator>
+
+</div>

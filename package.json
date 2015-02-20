@@ -1,0 +1,27 @@
+{
+  "name": "uebb-angular-hateoas",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uebb/uebb-angular-hateoas.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uebb/uebb-angular-hateoas/issues"
+  },
+  "homepage": "https://github.com/uebb/uebb-angular-hateoas",
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-angular-templatecache": "^1.5.0",
+    "gulp-concat": "^2.5.1",
+    "gulp-merge": "^0.1.0",
+    "gulp-ng-annotate": "^0.5.2",
+    "gulp-uglify": "^1.1.0"
+  }
+}

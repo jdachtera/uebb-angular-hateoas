@@ -1,0 +1,95 @@
+<div class="row">
+	<div class="col-sm-12">
+		<div class="hateoas-select-list-wrap">
+			<div class="row hateoas-select-list">
+				<div class="col-sm-5 selected-items-wrap">
+					<div class="selected-items">
+						<h2>{{ (labelPrefix + '.selected.header') | translate }}</h2>
+						<input type="text" ng-model="searchSelected" placeholder="{{ labelPrefix + '.placeholder.search' | translate }}" class="form-control" />
+						<hateoas-list resource="resource"
+									  rel="{{ rel }}"
+									  as="items"
+									  update="updateSelected"
+									  search="searchSelected"
+									  label-prefix="{{ labelPrefix }}.selected"
+									  order-field="{{ orderField }}"
+									  order-direction="{{ orderField }}">
+							<table class="table table-border table-hover table-condensed table-striped">
+								<tr ng-if="items.length > 0">
+									<th colspan="2">{{ (labelPrefix + '.selected.currently_assigned') | translate }}</th>
+								</tr>
+								<tr ng-repeat="item in items" ng-class="{ removed: inArray(item, removed) }">
+									<td ng-bind="{{ itemLabel }}"></td>
+									<td style="width: 50px;" class="text-center">
+										<a class="btn-pointer"
+										   ng-click="remove(item)"
+										   ng-hide="inArray(item, removed)"
+										   tooltip="{{ 'general.item.remove' | translate }}"
+										   tooltip-append-to-body="true"><span class="fa fa-trash-o"></span></a>
+										<a class="btn-pointer"
+										   ng-click="undoRemove(item)"
+										   ng-show="inArray(item, removed)"
+										   tooltip="{{ 'general.item.undoRemove' | translate }}"
+										   tooltip-append-to-body="true"><span class="fa fa-undo"></span></a>
+									</td>
+								</tr>
+
+								<tr ng-if="added.length > 0">
+									<th colspan="2">{{ (labelPrefix + '.selected.recently_added') | translate }}</th>
+								</tr>
+								<tr ng-repeat="item in added">
+									<td ng-bind="{{ itemLabel }}"></td>
+									<td style="width: 50px;" class="text-center">
+										<a class="btn-pointer"
+										   ng-click="undoAdd(item)"
+										   tooltip="{{ 'general.item.remove' | translate }}"
+										   tooltip-append-to-body="true"><span class="fa fa-trash-o"></span></a>
+									</td>
+								</tr>
+							</table>
+						</hateoas-list>
+					</div>
+				</div>
+
+				<div class="col-sm-2 chevron-wrap">
+					<div class="chevron">
+						<span class="fa fa-chevron-left fa-2x hidden-xs"></span>
+						<span class="fa fa-chevron-up fa-2x visible-xs"></span>
+					</div>
+				</div>
+
+				<div class="col-sm-5 available-items">
+					<h2>{{ (labelPrefix + '.available.header') | translate }}</h2>
+					<input type="text" ng-model="searchAvailable" placeholder="{{ labelPrefix + '.placeholder.search' | translate }}" class="form-control" />
+					<hateoas-list resource="srcResource"
+								  rel="{{ srcRel }}"
+								  as="items"
+								  update="updateAvailable"
+								  search="searchAvailable"
+								  filter="srcFilter"
+								  if="resource"
+								  label-prefix="{{ labelPrefix }}.available"
+								  order-field="{{ orderField }}"
+								  order-direction="{{ orderDirection }}">
+
+						<table class="table table-border table-hover table-condensed table-striped">
+							<tbody>
+								<tr ng-repeat="item in items"
+									ng-hide="inArray(item, added)"
+									ng-click="add(item)"
+									style="cursor: pointer"
+									tooltip="{{ 'general.item.add' | translate }}"
+									tooltip-append-to-body="true">
+									<td style="width: 20px;" class="text-center">
+										<a class="btn-pointer" ng-click="add(item)"><span class="fa fa-plus"></span></a>
+									</td>
+									<td ng-bind="{{ itemLabel }}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</hateoas-list>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

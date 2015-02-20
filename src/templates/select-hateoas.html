@@ -1,0 +1,79 @@
+<div class="chosen-container"
+	 style="width:100%"
+	 ng-class="{'chosen-with-drop': showDropdown, 'chosen-container-active': active, 'chosen-container-single': !multiple, 'chosen-container-multi': !!multiple, 'chosen-disabled':disabled}">
+
+	<ul ng-show="multiple" class="chosen-choices">
+		<li ng-repeat="item in selected" class="search-choice">
+			<span ng-bind="{{label}}"></span>
+			<a class="search-choice-close" ng-click="remove(item)"></a>
+		</li>
+		<li class="search-field">
+			<input ng-show="active"
+				   type="text"
+				   ng-model="search"
+				   class="default search"
+				   autocomplete="off"
+				   style="width: 125px;"
+				   ng-change="page=1;showDropdown=true;query()"
+				   ng-keydown="type($event)" />
+			<input ng-hide="active || selected.length > 0" type="text" ng-disabled="disabled" value="{{placeholder}}" class="default" />
+		</li>
+	</ul>
+
+
+	<a ng-show="!multiple" class="chosen-single chosen-default">
+		<span ng-if="selected.length == 0">{{placeholder}}</span>
+		<span ng-if="selected.length" ng-repeat="item in selected" ng-bind="{{label}}">
+		</span>
+
+		<i ng-if="selected.length" ng-click="remove(selected[0])" class="fa fa-times chosen-remove" ng-hide="clearButton === false"></i>
+
+		<div><b></b></div>
+	</a>
+
+	<div class="chosen-drop">
+		<div ng-show="!multiple" class="chosen-search">
+			<input type="text" class="default search" autocomplete="off" ng-model="search" ng-change="page=1;query()">
+		</div>
+		<div ng-if="!request || request.isPending()" class="chosen-spinner" style="padding:20px;text-align:center">
+			<span class="fa fa-spinner fa-spin"></span>
+		</div>
+		<div ng-if="request.isFulfilled()">
+			<div ng-show="request.value().items.length == 0" style="padding:20px;text-align:center">
+				{{ 'general.list.empty' | translate }}
+				<div ng-show="!!created && !!createFactory && search != ''"><a ng-click="create()">"{{search}}" {{ 'general.add' | translate }}</a></div>
+			</div>
+			<ul class="chosen-results">
+				<li ng-repeat="item in request.value().items" ng-class="{'active-result': isNotSelected(item), 'result-selected': !isNotSelected(item), 'highlighted': item.selected}" ng-bind="{{label}}" ng-click="add(item)"></li>
+				<li ng-show="displayCreate && request.value().items.length != 0" class="active-result">
+					<a ng-click="create()">"{{search}}" {{ 'general.add' | translate }}</a>
+				</li>
+			</ul>
+
+			<div class="select-pagination" ng-show="request.value().pages > 1">
+				<div class="pages">
+					{{ 'general.page' | translate }} <span>{{ page }}</span> {{ 'general.of' | translate }} <span>{{ request.value().pages }}</span>
+				</div>
+				<div class="pagination"> 
+					<ul class="pagination">
+						<li ng-class="{disabled: page <= 1}" class="hateoas-select-prev">
+							<a ng-click="changePage(page - 1);">
+								&laquo;
+							</a>
+						</li>
+						<li ng-class="{disabled: page >= request.value().pages}" class="hateoas-select-next">
+							<a ng-click="changePage(page + 1);">
+								&raquo;
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+		<div ng-if="request.isRejected()" style="padding:20px;text-align:center">
+			{{ 'general.list.error' | translate }}
+		</div>
+
+	</div>
+</div>
