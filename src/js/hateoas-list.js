@@ -6,7 +6,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 
 	return {
 		restrict: 'EA',
-		templateUrl: 'FrontendBundle/hateoas/hateoas-list.html',
+		templateUrl: 'uebb_hateoas_templates/hateoas-list.html',
 		transclude: true,
 		replace: false,
 		scope: {

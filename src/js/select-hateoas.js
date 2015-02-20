@@ -26,7 +26,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', function($timeout) {
             clearButton: '='
 		},
 		replace: true,
-		templateUrl: 'FrontendBundle/hateoas/select-hateoas.html',
+		templateUrl: 'uebb_hateoas_templates/select-hateoas.html',
 		link: function(scope, element, attrs, controller, transclude) {
 			scope.focus = function() {
 				$timeout(function() {

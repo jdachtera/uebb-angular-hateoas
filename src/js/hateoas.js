@@ -1,1 +1,1 @@
-angular.module('uebb.hateoas', ['mwl.bluebird', 'FrontendBundle.templates', 'pascalprecht.translate']);
+angular.module('uebb.hateoas', ['mwl.bluebird', 'uebb.hateoas.templates', 'pascalprecht.translate']);

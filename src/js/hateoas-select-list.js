@@ -22,7 +22,7 @@ angular.module('uebb.hateoas').directive('hateoasSelectList', function() {
 			updateAvailable: '=?',
 			disabled: '=?'
 		},
-		templateUrl: 'FrontendBundle/hateoas/hateoasSelectList.html',
+		templateUrl: 'uebb_hateoas_templates/hateoasSelectList.html',
 		link: function(scope, element, attrs) {
 			scope.$watch('disabled', function(disabled) {
 				if(disabled) {

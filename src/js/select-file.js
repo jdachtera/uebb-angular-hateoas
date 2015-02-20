@@ -2,7 +2,7 @@
 
 angular.module('uebb.hateoas').directive('selectFile', function($timeout, HateoasResource) {
 	return {
-		templateUrl: 'FrontendBundle/hateoas/select-file.html',
+		templateUrl: 'uebb_hateoas_templates/select-file.html',
 		restrict: 'EA',
 		scope: {
 			rel: '@',

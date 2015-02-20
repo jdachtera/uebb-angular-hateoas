@@ -5,7 +5,7 @@ angular.module('uebb.hateoas')
 
         return {
             restrict: 'EAC',
-            templateUrl: 'FrontendBundle/hateoas/hateoas-link.html',
+            templateUrl: 'uebb_hateoas_templates/hateoas-link.html',
             transclude: true,
             replace: false,
             scope: {
