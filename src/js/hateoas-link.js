@@ -4,7 +4,7 @@ angular.module('uebb.hateoas')
     .directive('hateoasLink', function($q, $timeout, HateoasResource) {
 
         return {
-            restrict: 'EAC',
+            restrict: 'AEC',
             templateUrl: 'uebb_hateoas_templates/hateoas-link.html',
             transclude: true,
             replace: false,
@@ -21,7 +21,6 @@ angular.module('uebb.hateoas')
             },
 
             link: function(scope, element, attributes, controller, transclude) {
-                console.log('link')
 
                 var newScope = scope.$parent.$new();
                 scope.transcludeScope = newScope;
@@ -31,7 +30,6 @@ angular.module('uebb.hateoas')
 
             },
             controller: function($scope) {
-                console.log('controller')
                 var request = null;
                 var lastResource, lastRel;
 

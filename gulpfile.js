@@ -19,3 +19,7 @@ gulp.task('default', function () {
 
     ;
 });
+
+gulp.task('watch', function() {
+    gulp.watch(['src/templates/*.html', 'src/js/hateoas.js', 'src/js/*.js'], ['default']);
+});

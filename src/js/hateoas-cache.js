@@ -196,10 +196,31 @@ angular.module('uebb.hateoas').factory('hateoasCache',
         function embeddedHeaders(parentHeaders) {
             return function (name) {
                 if (name.toLowerCase() === 'content-type') {
-                    return 'application/vnd.uebb.hateoas.resource+json';
+                    return '';
                 }
                 return parentHeaders(name);
             };
+        }
+
+        /**
+         * Search for a constructor for a given content type
+         *
+         * @param contentType
+         * @returns {HateoasResource}
+         */
+        function getCtor(contentType) {
+            if (!contentTypeCtorMap[contentType]) {
+                for (var pattern in contentTypeCtorMap) {
+                    if (contentTypeCtorMap.hasOwnProperty(pattern)) {
+                        if (contentType.match(pattern)) {
+                            contentTypeCtorMap[contentType] = contentTypeCtorMap[pattern];
+                        }
+                    }
+                }
+            }
+
+            return contentTypeCtorMap[contentType] || DefaultCtor;
+
         }
 
         /**
@@ -210,7 +231,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @returns {$q}
          */
         function addToCache(data, headers) {
-            var Ctor = contentTypeCtorMap[headers('Content-Type')] || DefaultCtor;
+            var Ctor = getCtor(headers('Content-Type'));
 
             return getEmbedded(data, embeddedHeaders(headers))
                 .then(function () {

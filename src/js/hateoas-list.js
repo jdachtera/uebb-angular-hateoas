@@ -53,6 +53,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 			});
 		},
 		controller: function($scope, $timeout, HateoasResource, $q) {
+
 			$scope.page = $scope.page || 1;
 
 			var request = null;
@@ -64,8 +65,8 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 					var invalidate = $scope.update || !!$scope.ignoreCache();
                     var update = $scope.update;
 
-
 					$scope.update = false;
+
 
 					$q.resolve($scope.resource)
 						.then(function(resource) {
@@ -116,11 +117,12 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 									$scope.transcludeScope.error = null;
 
 									$scope.promise = resource.getLink($scope.rel, params, invalidate).then(function(result) {
-											var args = {};
+											var args = {}
 
 											if($scope.resourceAs) {
 												$scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
 											}
+
 
 											args[$scope.as || $scope.rel] = result.items;
 
