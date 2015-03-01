@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('uebb.hateoas')
-    .directive('hateoasLink', function($q, $timeout, HateoasResource) {
+    .directive('hateoasLink', function(Promise, $timeout, HateoasResource) {
 
         return {
             restrict: 'AEC',
@@ -35,7 +35,7 @@ angular.module('uebb.hateoas')
 
 
                 function fetch(currentValue, oldValue) {
-                    $q.resolve($scope.resource)
+                    Promise.resolve($scope.resource)
                         .then(function(resource) {
                             if (resource instanceof HateoasResource) {
                                 if (!$scope.update && (lastResource === resource && lastRel === $scope.rel)) {

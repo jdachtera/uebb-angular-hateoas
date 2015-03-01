@@ -6,14 +6,14 @@ angular.module('uebb.hateoas').factory('HateoasResource',
     /**
      *
      * @param {@link $http} $http
-     * @param {@link $q} $q
+     * @param {@link Promise} Promise
      * @param {@link hateoasUtil} hateoasUtil
      * @param {@link hateoasCache} hateoasCache
      * @param {@link HateoasRequestError} HateoasRequestError
      *
      * @returns {@link HateoasResource}
      */
-        function ($http, $q, hateoasUtil, hateoasCache, HateoasRequestError) {
+        function ($http, Promise, hateoasUtil, hateoasCache, HateoasRequestError) {
         'use strict';
 
 
@@ -36,13 +36,13 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {{}} data - The data in hal+json format
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.setData = function (data) {
             angular.copy(hateoasUtil.getProperties(data), this);
             this.$originalData = data;
             this.$links = hateoasUtil.getLinks(data);
-            return $q.resolve(this);
+            return Promise.resolve(this);
         };
 
         /**
@@ -70,12 +70,12 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @param {string} rel - The relation name to fetch
          * @param {{}} [params] - Additional GET params to append to the link url
          * @param {boolean} [ignoreCache=false] - Ignore the hateoas resource cache
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.getLink = function (rel, params, ignoreCache) {
             var href = this.getHref(rel);
             if (angular.isArray(href)) {
-                return $q.all(href.map(function (href) {
+                return Promise.all(href.map(function (href) {
                     return HateoasResource.get(href, params, ignoreCache);
                 }));
             }
@@ -83,7 +83,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 return HateoasResource.get(href, params, ignoreCache);
             }
             else {
-                return $q.reject(new Error('Link not found: ' + rel));
+                return Promise.reject(new Error('Link not found: ' + rel));
             }
         };
 
@@ -137,12 +137,12 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @public
          * @instance
          *
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.delete = function () {
             var url = this.getHref('self');
 
-            return $q.resolve(
+            return Promise.resolve(
                 $http({method: 'DELETE', url: url, headers: headers, withCredentials: true})
             ).then(function (response) {
                     hateoasCache.invalidateRelated(this);
@@ -314,7 +314,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {string} url - The url to post the resource to
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.post = function (url) {
             var data = this.getData();
@@ -336,7 +336,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 };
             }
 
-            return $q.resolve($http(conf))
+            return Promise.resolve($http(conf))
                 .then(function (response) {
                     if (response.status === 201) {
                         this.setHref('self', response.headers('Location'), true);
@@ -511,7 +511,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @public
          * @instance
          *
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.reload = function () {
             return HateoasResource.get(this.getHref('self'), null, true);
@@ -525,7 +525,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          *
          * @param {string} url - The url to save the resource to if it is new
          * @param {boolean} [touch=false] - Send an empty patch if there are no local changes
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.save = function (url, touch) {
             var promise;
@@ -553,17 +553,17 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {boolean} [touch=false] - Send an empty patch if there are no local changes
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.patch = function (touch) {
             var url = this.getHref('self'),
                 patch = this.getChanges();
 
             if (patch.length === 0 && !touch) {
-                return $q.resolve(this);
+                return Promise.resolve(this);
             }
 
-            return $q.resolve($http({
+            return Promise.resolve($http({
                 method: 'PATCH',
                 url: url,
                 headers: headers,
@@ -585,8 +585,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
         HateoasResource.setContentType = function (contentType, ctor) {
             hateoasCache.setContentType(contentType, ctor);
         };
-
-        hateoasCache.setContentType('application/vnd.uebb.resource+json', HateoasResource);
+        
         hateoasCache.setDefaultCtor(HateoasResource);
 
         /**
@@ -596,24 +595,24 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @param {string} url - The URI to fetch
          * @param {{}} [params] - Additional GET params to append to the url
          * @param {boolean} [ignoreCache=false] - Ignore locally cached resources
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.get = function (url, params, ignoreCache) {
             url = hateoasUtil.addParamsToUrl(url, params);
 
-            var cached$q = hateoasCache.getCached$q(url);
-            // Return cached$q only if it is not rejected and only if it is pending if ignoreCache is set
-            if (cached$q && !cached$q.isRejected() && !(ignoreCache && cached$q.isResolved())) {
-                return cached$q;
+            var cachedPromise = hateoasCache.getCachedPromise(url);
+            // Return cachedPromise only if it is not rejected and only if it is pending if ignoreCache is set
+            if (cachedPromise && !cachedPromise.isRejected() && !(ignoreCache && cachedPromise.isResolved())) {
+                return cachedPromise;
             }
 
             if (!ignoreCache) {
                 if (hateoasCache.hasValidCache(url)) {
-                    return $q.resolve(hateoasCache.getCached(url));
+                    return Promise.resolve(hateoasCache.getCached(url));
                 }
             }
 
-            var canceler = $q.defer();
+            var canceler = Promise.defer();
 
             var request = $http({
                 method: 'GET',
@@ -623,11 +622,11 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 withCredentials: true
             });
 
-            var promise = $q.resolve(request)
+            var promise = Promise.resolve(request)
                 .cancellable()
-                .catch($q.CancellationError, function (e) {
+                .catch(Promise.CancellationError, function (e) {
                     canceler.resolve();
-                    return $q.reject(e);
+                    return Promise.reject(e);
                 })
                 .then(function (response) {
                     return hateoasCache.addToCache(response.data, response.headers);

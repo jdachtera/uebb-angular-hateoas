@@ -21,7 +21,7 @@ function(HateoasResource) {
 
     /**
      * Get all items of the collection asynchronously
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.getItems = function () {
         return this.getLink('items')
@@ -31,11 +31,13 @@ function(HateoasResource) {
             }.bind(this));
     };
 
+    HateoasCollection.prototype.setLink
+
     /**
      * Set the data
      *
      * @param {{}} data - The data in hal+json format
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.setData = function (data) {
         return HateoasResource.prototype.setData.call(this, data)
@@ -73,7 +75,7 @@ function(HateoasResource) {
      *
      * @param {integer} page - The page to fetch
      * @param {integer} limit - The maximum items per page
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.fetchPage = function (page, limit) {
         var url = new URI(this.getHref('self'))
@@ -89,7 +91,7 @@ function(HateoasResource) {
     /**
      * Fetch the next page
      *
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.nextPage = function () {
         return HateoasResource.get(this.getHref('next'));
@@ -98,7 +100,7 @@ function(HateoasResource) {
     /**
      * Fetch the previous page
      *
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.previousPage = function () {
         return HateoasResource.get(this.getHref('previous') || this.getHref('prev'));
@@ -108,7 +110,7 @@ function(HateoasResource) {
      * Query the collection
      *
      * @param {{}} params - The query params
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.query = function (params) {
         params = params || {};

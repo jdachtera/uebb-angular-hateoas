@@ -15,45 +15,34 @@
             </div>
         </hateoas-list>
 
-<!--
-        <ul hateoas-list disable-pagination="true" disable-messages="true" resource="linkResource" rel="{{linkRel}}" as="existingFiles" update="data.updateExisting">
-            <li ng-repeat="file in existingFiles">
+        <div ng-if="files.length > 0" class="new-files">
+            <h5>{{ 'file.label.newFiles' | translate }}</h5>
 
-                {{ file.name }} ({{file.size | filesize}})
-                <a class="btn-pointer" delete-resource="file" on-delete="data.updateExisting = true" label="resource.name">
-                    <i class="fa fa-trash-o" tooltip="{{ 'file.label.delete' | translate }}"></i>
-                </a>
-            </li>
-        </ul>
--->
-            <div ng-if="files.length > 0" class="new-files">
-                <h5>{{ 'file.label.newFiles' | translate }}</h5>
+            <ul>
+                <li ng-repeat="file in files">
 
-                <ul>
-                    <li ng-repeat="file in files">
+                    <span ng-class="{'text-danger' : getFileErrors(file) !== null}">
+                        {{ file[uploadProperty].name }} ({{ file[uploadProperty].size | filesize}})
+                    </span>
 
-                        <span ng-class="{'text-danger' : getFileErrors(file) !== null}">
-                            {{ file[uploadProperty].name }} ({{ file[uploadProperty].size}})
-                        </span>
+            <span ng-if="file.$newVersion">
+                        &nbsp; <span tooltip="{{ 'file.label.newVersion' | translate }}" tooltip-append-to-body="true" class="btn-help"><i class="fa fa-asterisk"></i></span> &nbsp;
+                    </span>
 
-                <span ng-if="file.$newVersion">
-                            &nbsp; <span tooltip="{{ 'file.label.newVersion' | translate }}" tooltip-append-to-body="true" class="btn-help"><i class="fa fa-asterisk"></i></span> &nbsp;
-                        </span>
+                    <a title="remove" class="btn-pointer" ng-click="files.splice(files.indexOf(file), 1)">
+                        <i class="fa fa-times" tooltip="{{ 'file.label.delete' | translate }}"></i>
+                    </a>
 
-                        <a title="remove" class="btn-pointer" ng-click="files.splice(files.indexOf(file), 1)">
-                            <i class="fa fa-times" tooltip="{{ 'file.label.delete' | translate }}"></i>
-                        </a>
+                    <div class="help-block" ng-if="getFileErrors(file) !== null">
+                        <ul>
+                            <li ng-repeat="message in getFileErrors(file).uploadedFile.errors" translate="{{ message }}" ></li>
+                        </ul>
+                    </div>
 
-                        <div class="help-block" ng-if="getFileErrors(file) !== null">
-                            <ul>
-                                <li ng-repeat="message in getFileErrors(file).uploadedFile.errors" translate="{{ message }}" ></li>
-                            </ul>
-                        </div>
+                </li>
+            </ul>
 
-                    </li>
-                </ul>
-
-            </div>
+        </div>
 
         <span class="btn btn-default btn-file">
 

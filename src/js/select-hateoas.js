@@ -87,7 +87,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', function($timeout) {
 				return true;
 			}
 		},
-		controller: function($scope, HateoasResource, HateoasCollection, $timeout, $q) {
+		controller: function($scope, HateoasResource, HateoasCollection, $timeout, Promise) {
 			$scope.add = function(item) {
 				if($scope.multiple) {
 					if($scope.multiple !== true && $scope.selected.length >= $scope.multiple) {
@@ -137,7 +137,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', function($timeout) {
 
 			$scope.existing = [];
 			$scope.$watch('resource', function() {
-				$q.resolve($scope.resource)
+				Promise.resolve($scope.resource)
 					.then(function(resource) {
 						if(resource instanceof HateoasResource) {
 
@@ -281,7 +281,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', function($timeout) {
 			};
 
 			$scope.create = function() {
-				$q.resolve($scope.createFactory({search: $scope.search})).then(function(newItem) {
+				Promise.resolve($scope.createFactory({search: $scope.search})).then(function(newItem) {
 					$scope.created.push(newItem);
 					$scope.selected.push(newItem);
 					$scope.search = '';
@@ -305,7 +305,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', function($timeout) {
 			});
 
 			$scope.$watch('srcResource', function(srcResource) {
-				$q.resolve(srcResource)
+				Promise.resolve(srcResource)
 					.then(function(srcResource) {
 						if(srcResource instanceof HateoasResource && $scope.srcRel) {
 							$scope.url = srcResource.getHref($scope.srcRel);

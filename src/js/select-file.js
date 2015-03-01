@@ -8,7 +8,7 @@ angular.module('uebb.hateoas')
             scope: {
                 linkRel: '@',
                 linkResource: '=?',
-                resource: '=',
+                resource: '&',
                 uploadProperty: '=?',
                 multiple: '=?',
                 files: '=?',
@@ -25,8 +25,6 @@ angular.module('uebb.hateoas')
                 scope.data = {updateExisting: false};
                 scope.uploadProperty = scope.uploadProperty || 'upload';
                 scope.files = scope.files || [];
-
-
                     element.find('input[type=file]').on('change', function(changeEvent) {
                     $timeout(function() {
                         var resource;
@@ -34,7 +32,7 @@ angular.module('uebb.hateoas')
                             /**
                              * @type {HateoasResource}
                              */
-                            resource = scope.resource || new HateoasResource();
+                            resource = scope.resource() || new HateoasResource();
                             resource[scope.uploadProperty || 'upload'] = changeEvent.target.files.item(i);
                             if(scope.linkResource && scope.linkRel && !resource.hasLink(scope.linkRel, scope.linkResource)) {
                                 resource.setLink(scope.linkRel, scope.linkResource);

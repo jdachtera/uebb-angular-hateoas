@@ -5,10 +5,9 @@
  */
 angular.module('uebb.hateoas').factory('hateoasUtil',
     /**
-     * @param {@link $q} $q
      * @returns {@link hateoasUtil}
      */
-    function($q) {
+    function() {
         /* global File */
         /* global FormData */
 
@@ -70,7 +69,7 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                     }
                     else if (Array.isArray(cur)) {
                         for (i = 0, l = cur.length; i < l; i++) {
-                            recurse(cur[i], prop ? prop + "[]" : "" + i);
+                            recurse(cur[i], prop ? prop + '[' + i + ']' : '' + i);
                         }
                         if (l === 0) {
                             result[prop] = [];
@@ -249,44 +248,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 return normalized;
             },
             /**
-             * Virtual links don't end with an (integer) id
-             * @param {{string}} link The url
-             * @returns {boolean}
-             */
-            isVirtual: function isVirtual(link) {
-                return isNaN(parseInt(link.href.split('/').pop(), 10));
-            },
-            /**
-             * Non virtual links end with an (integer) id
-             * @param {{string}} link The url
-             * @returns {boolean}
-             */
-            isNotVirtual: function isNotVirtual(link) {
-                return !hateoasUtil.isVirtual(link);
-            },
-            /**
-             * Removes all non-virtual links from a json-hal style data object
-             *
-             * @param {{}} data - The source data
-             * @returns {{}} - The filtered data
-             */
-            removeVirtualLinks: function removeVirtualLinks(data) {
-
-                Object.keys(data[hateoasUtil.linksProperty]).forEach(function (rel) {
-                    var links = data[hateoasUtil.linksProperty][rel];
-                    if (angular.isArray(links)) {
-                        data[hateoasUtil.linksProperty][rel] = links.filter(hateoasUtil.isNotVirtual);
-                    }
-                    else {
-                        if (data[hateoasUtil.linksProperty][rel] && hateoasUtil.isVirtual(data[hateoasUtil.linksProperty][rel])) {
-                            delete(data[hateoasUtil.linksProperty][rel]);
-                        }
-                    }
-                });
-
-                return data;
-            },
-            /**
              * Adds an additional path portion to a link if given
              * @param {{string}} link - The url
              * @param {{string}} additional - The additional path portion
@@ -301,8 +262,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                     return link;
                 }
             }
-
-
         };
 
         return hateoasUtil;

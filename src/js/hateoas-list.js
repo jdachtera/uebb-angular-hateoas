@@ -52,7 +52,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 
 			});
 		},
-		controller: function($scope, $timeout, HateoasResource, $q) {
+		controller: function($scope, $timeout, HateoasResource, Promise) {
 
 			$scope.page = $scope.page || 1;
 
@@ -68,7 +68,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 					$scope.update = false;
 
 
-					$q.resolve($scope.resource)
+					Promise.resolve($scope.resource)
 						.then(function(resource) {
 							if(resource instanceof HateoasResource) {
 
