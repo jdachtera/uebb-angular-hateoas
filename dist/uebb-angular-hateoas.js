@@ -1,10 +1,37 @@
 angular.module("uebb.hateoas.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("uebb_hateoas_templates/hateoas-link.html","<div>\n    <div ng-show=\"promise.isFulfilled()\" class=\"transclude-content\"></div>\n\n    <div ng-if=\"!disableSpinner && (!promise || promise.isPending())\">\n        <span class=\"fa fa-spinner fa-spin\"></span> {{ labelPrefix + \'.loading\' }}\n    </div>\n\n    <div ng-if=\"promise.isRejected()\">\n        {{ labelPrefix + \'.error\' }}\n    </div>\n\n\n</div>");
 $templateCache.put("uebb_hateoas_templates/hateoas-list.html","<div ng-show=\"if !== false\" class=\"hateoas-list\">\n\n	<div ng-show=\"orderFields\" class=\"element-spacing-small\">\n		{{ \'general.list.order.label\' | translate }} &nbsp;&nbsp;&nbsp;\n		<div class=\"btn-group\">\n			<a href data-toggle=\"dropdown\" class=\"btn btn-link dropdown-toggle\">\n				<i class=\"fa fa-fw fa-sort\"></i>{{ labelPrefix + \'.field.\' + orderField | translate }} <span class=\"caret\"></span>\n			</a>\n			<ul class=\"dropdown-menu\" role=\"menu\">\n				<li ng-repeat=\"field in orderFields\" ng-class=\"{\'active\': orderField == field}\">\n					<a dropdown-toggle href ng-click=\"setOrder(field, orderDirection)\"><i class=\"fa fa-fw fa-sort\"></i>{{ labelPrefix + \'.field.\' + field | translate }} </a>\n				</li>\n			</ul>\n		</div>\n		<div class=\"btn-group\">\n			<a href data-toggle=\"dropdown\" class=\"btn btn-link dropdown-toggle\">\n				<i class=\"fa fa-fw\" ng-class=\"{\'fa-sort-amount-asc\': orderDirection == \'ASC\', \'fa-sort-amount-desc\': orderDirection == \'DESC\'}\"></i>{{ \'general.list.direction.\' + orderDirection | translate }} <span class=\"caret\"></span>\n			</a>\n			<ul class=\"dropdown-menu\" role=\"menu\">\n				<li ng-class=\"{\'active\': orderDirection == \'ASC\'}\">\n					<a dropdown-toggle href ng-click=\"setOrder(orderField, \'ASC\')\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i>{{ \'general.list.order.direction.ASC\' | translate }}</a>\n				</li>\n				<li ng-class=\"{\'active\': orderDirection == \'DESC\'}\">\n					<a dropdown-toggle href ng-click=\"setOrder(orderField, \'DESC\')\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i>{{ \'general.list.order.direction.DESC\' | translate }}</a>\n				</li>\n			</ul>\n		</div>\n	</div>\n\n\n	<div class=\"response element-spacing-small\" ng-show=\"!disableMessages\">\n\n		<div ng-show=\"!disableSpinner && (!promise || promise.isPending())\">\n			<span class=\"fa fa-spinner fa-spin\"></span> {{ labelPrefix + \'.loading\' | translate }}\n		</div>\n\n		<div ng-show=\"transcludeScope.error\">\n			{{ labelPrefix + \'.error\' | translate }}\n			{{trancludeScope.error}}\n		</div>\n\n		<div ng-show=\"promise.isResolved() && !transcludeScope.error && transcludeScope[as || rel].length === 0\">\n			{{ labelPrefix + \'.empty\' | translate }}\n		</div>\n\n	</div>\n\n	<div ng-show=\"promise.isResolved() && !transcludeScope.error\" class=\"hateoas-list-items transclude-content\"></div>\n\n	<div class=\"hateoas-pagination\">\n		<pagination\n				class=\"pagination-sm\"\n				ng-show=\"!disablePagination && pages > 1\"\n				total-items=\"pages * limit\"\n				items-per-page=\"limit\"\n				ng-model=\"page\"\n				previous-text=\"&lt;\"\n				next-text=\"&gt;\"\n				first-text=\"&lt;&lt;\"\n				last-text=\"&gt;&gt;\"\n				boundary-links=\"true\"\n				max-size=\"3\"\n				rotate=\"false\">\n		</pagination>\n	</div>\n\n</div>\n\n<div ng-show=\"bare\" class=\"transclude-bare\"></div>\n");
 $templateCache.put("uebb_hateoas_templates/hateoasSelectList.html","<div class=\"row\">\n	<div class=\"col-sm-12\">\n		<div class=\"hateoas-select-list-wrap\">\n			<div class=\"row hateoas-select-list\">\n				<div class=\"col-sm-5 selected-items-wrap\">\n					<div class=\"selected-items\">\n						<h2>{{ (labelPrefix + \'.selected.header\') | translate }}</h2>\n						<input type=\"text\" ng-model=\"searchSelected\" placeholder=\"{{ labelPrefix + \'.placeholder.search\' | translate }}\" class=\"form-control\" />\n						<hateoas-list resource=\"resource\"\n									  rel=\"{{ rel }}\"\n									  as=\"items\"\n									  update=\"updateSelected\"\n									  search=\"searchSelected\"\n									  label-prefix=\"{{ labelPrefix }}.selected\"\n									  order-field=\"{{ orderField }}\"\n									  order-direction=\"{{ orderField }}\">\n							<table class=\"table table-border table-hover table-condensed table-striped\">\n								<tr ng-if=\"items.length > 0\">\n									<th colspan=\"2\">{{ (labelPrefix + \'.selected.currently_assigned\') | translate }}</th>\n								</tr>\n								<tr ng-repeat=\"item in items\" ng-class=\"{ removed: inArray(item, removed) }\">\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n									<td style=\"width: 50px;\" class=\"text-center\">\n										<a class=\"btn-pointer\"\n										   ng-click=\"remove(item)\"\n										   ng-hide=\"inArray(item, removed)\"\n										   tooltip=\"{{ \'general.item.remove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-trash-o\"></span></a>\n										<a class=\"btn-pointer\"\n										   ng-click=\"undoRemove(item)\"\n										   ng-show=\"inArray(item, removed)\"\n										   tooltip=\"{{ \'general.item.undoRemove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-undo\"></span></a>\n									</td>\n								</tr>\n\n								<tr ng-if=\"added.length > 0\">\n									<th colspan=\"2\">{{ (labelPrefix + \'.selected.recently_added\') | translate }}</th>\n								</tr>\n								<tr ng-repeat=\"item in added\">\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n									<td style=\"width: 50px;\" class=\"text-center\">\n										<a class=\"btn-pointer\"\n										   ng-click=\"undoAdd(item)\"\n										   tooltip=\"{{ \'general.item.remove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-trash-o\"></span></a>\n									</td>\n								</tr>\n							</table>\n						</hateoas-list>\n					</div>\n				</div>\n\n				<div class=\"col-sm-2 chevron-wrap\">\n					<div class=\"chevron\">\n						<span class=\"fa fa-chevron-left fa-2x hidden-xs\"></span>\n						<span class=\"fa fa-chevron-up fa-2x visible-xs\"></span>\n					</div>\n				</div>\n\n				<div class=\"col-sm-5 available-items\">\n					<h2>{{ (labelPrefix + \'.available.header\') | translate }}</h2>\n					<input type=\"text\" ng-model=\"searchAvailable\" placeholder=\"{{ labelPrefix + \'.placeholder.search\' | translate }}\" class=\"form-control\" />\n					<hateoas-list resource=\"srcResource\"\n								  rel=\"{{ srcRel }}\"\n								  as=\"items\"\n								  update=\"updateAvailable\"\n								  search=\"searchAvailable\"\n								  filter=\"srcFilter\"\n								  if=\"resource\"\n								  label-prefix=\"{{ labelPrefix }}.available\"\n								  order-field=\"{{ orderField }}\"\n								  order-direction=\"{{ orderDirection }}\">\n\n						<table class=\"table table-border table-hover table-condensed table-striped\">\n							<tbody>\n								<tr ng-repeat=\"item in items\"\n									ng-hide=\"inArray(item, added)\"\n									ng-click=\"add(item)\"\n									style=\"cursor: pointer\"\n									tooltip=\"{{ \'general.item.add\' | translate }}\"\n									tooltip-append-to-body=\"true\">\n									<td style=\"width: 20px;\" class=\"text-center\">\n										<a class=\"btn-pointer\" ng-click=\"add(item)\"><span class=\"fa fa-plus\"></span></a>\n									</td>\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n								</tr>\n							</tbody>\n						</table>\n					</hateoas-list>\n				</div>\n			</div>\n		</div>\n	</div>\n</div>");
-$templateCache.put("uebb_hateoas_templates/select-file.html","<div class=\"select-file\">\n\n        <hateoas-list disable-pagination=\"true\" disable-messages=\"true\" resource=\"linkResource\" limit=\"0\" rel=\"{{linkRel}}\" as=\"existingFiles\" update=\"data.updateExisting\">\n            <div ng-if=\"existingFiles.length > 0\" class=\"existing-files\">\n                <h5>{{ \'file.label.existingFiles\' | translate }}</h5>\n                <ul>\n                    <li ng-repeat=\"file in existingFiles\">\n\n                        {{ file.name }} ({{file.size | filesize}})\n                        <a class=\"btn-pointer\" delete-resource=\"file\" on-delete=\"data.updateExisting = true\" label=\"linkResource.name\">\n                            <i class=\"fa fa-trash-o\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                        </a>\n                    </li>\n                </ul>\n            </div>\n        </hateoas-list>\n\n<!--\n        <ul hateoas-list disable-pagination=\"true\" disable-messages=\"true\" resource=\"linkResource\" rel=\"{{linkRel}}\" as=\"existingFiles\" update=\"data.updateExisting\">\n            <li ng-repeat=\"file in existingFiles\">\n\n                {{ file.name }} ({{file.size | filesize}})\n                <a class=\"btn-pointer\" delete-resource=\"file\" on-delete=\"data.updateExisting = true\" label=\"resource.name\">\n                    <i class=\"fa fa-trash-o\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                </a>\n            </li>\n        </ul>\n-->\n            <div ng-if=\"files.length > 0\" class=\"new-files\">\n                <h5>{{ \'file.label.newFiles\' | translate }}</h5>\n\n                <ul>\n                    <li ng-repeat=\"file in files\">\n\n                        <span ng-class=\"{\'text-danger\' : getFileErrors(file) !== null}\">\n                            {{ file[uploadProperty].name }} ({{ file[uploadProperty].size}})\n                        </span>\n\n                <span ng-if=\"file.$newVersion\">\n                            &nbsp; <span tooltip=\"{{ \'file.label.newVersion\' | translate }}\" tooltip-append-to-body=\"true\" class=\"btn-help\"><i class=\"fa fa-asterisk\"></i></span> &nbsp;\n                        </span>\n\n                        <a title=\"remove\" class=\"btn-pointer\" ng-click=\"files.splice(files.indexOf(file), 1)\">\n                            <i class=\"fa fa-times\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                        </a>\n\n                        <div class=\"help-block\" ng-if=\"getFileErrors(file) !== null\">\n                            <ul>\n                                <li ng-repeat=\"message in getFileErrors(file).uploadedFile.errors\" translate=\"{{ message }}\" ></li>\n                            </ul>\n                        </div>\n\n                    </li>\n                </ul>\n\n            </div>\n\n        <span class=\"btn btn-default btn-file\">\n\n            {{ label | translate }} <input type=\"file\" accept=\"{{ mimeTypes }}\" />\n        </span>\n</div>");
+$templateCache.put("uebb_hateoas_templates/select-file.html","<div class=\"select-file\">\n\n        <hateoas-list disable-pagination=\"true\" disable-messages=\"true\" resource=\"linkResource\" limit=\"0\" rel=\"{{linkRel}}\" as=\"existingFiles\" update=\"data.updateExisting\">\n            <div ng-if=\"existingFiles.length > 0\" class=\"existing-files\">\n                <h5>{{ \'file.label.existingFiles\' | translate }}</h5>\n                <ul>\n                    <li ng-repeat=\"file in existingFiles\">\n\n                        {{ file.name }} ({{file.size | filesize}})\n                        <a class=\"btn-pointer\" delete-resource=\"file\" on-delete=\"data.updateExisting = true\" label=\"linkResource.name\">\n                            <i class=\"fa fa-trash-o\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                        </a>\n                    </li>\n                </ul>\n            </div>\n        </hateoas-list>\n\n        <div ng-if=\"files.length > 0\" class=\"new-files\">\n            <h5>{{ \'file.label.newFiles\' | translate }}</h5>\n\n            <ul>\n                <li ng-repeat=\"file in files\">\n\n                    <span ng-class=\"{\'text-danger\' : getFileErrors(file) !== null}\">\n                        {{ file[uploadProperty].name }} ({{ file[uploadProperty].size | filesize}})\n                    </span>\n\n            <span ng-if=\"file.$newVersion\">\n                        &nbsp; <span tooltip=\"{{ \'file.label.newVersion\' | translate }}\" tooltip-append-to-body=\"true\" class=\"btn-help\"><i class=\"fa fa-asterisk\"></i></span> &nbsp;\n                    </span>\n\n                    <a title=\"remove\" class=\"btn-pointer\" ng-click=\"files.splice(files.indexOf(file), 1)\">\n                        <i class=\"fa fa-times\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                    </a>\n\n                    <div class=\"help-block\" ng-if=\"getFileErrors(file) !== null\">\n                        <ul>\n                            <li ng-repeat=\"message in getFileErrors(file).uploadedFile.errors\" translate=\"{{ message }}\" ></li>\n                        </ul>\n                    </div>\n\n                </li>\n            </ul>\n\n        </div>\n\n        <span class=\"btn btn-default btn-file\">\n\n            {{ label | translate }} <input type=\"file\" accept=\"{{ mimeTypes }}\" />\n        </span>\n</div>");
 $templateCache.put("uebb_hateoas_templates/select-hateoas.html","<div class=\"chosen-container\"\n	 style=\"width:100%\"\n	 ng-class=\"{\'chosen-with-drop\': showDropdown, \'chosen-container-active\': active, \'chosen-container-single\': !multiple, \'chosen-container-multi\': !!multiple, \'chosen-disabled\':disabled}\">\n\n	<ul ng-show=\"multiple\" class=\"chosen-choices\">\n		<li ng-repeat=\"item in selected\" class=\"search-choice\">\n			<span ng-bind=\"{{label}}\"></span>\n			<a class=\"search-choice-close\" ng-click=\"remove(item)\"></a>\n		</li>\n		<li class=\"search-field\">\n			<input ng-show=\"active\"\n				   type=\"text\"\n				   ng-model=\"search\"\n				   class=\"default search\"\n				   autocomplete=\"off\"\n				   style=\"width: 125px;\"\n				   ng-change=\"page=1;showDropdown=true;query()\"\n				   ng-keydown=\"type($event)\" />\n			<input ng-hide=\"active || selected.length > 0\" type=\"text\" ng-disabled=\"disabled\" value=\"{{placeholder}}\" class=\"default\" />\n		</li>\n	</ul>\n\n\n	<a ng-show=\"!multiple\" class=\"chosen-single chosen-default\">\n		<span ng-if=\"selected.length == 0\">{{placeholder}}</span>\n		<span ng-if=\"selected.length\" ng-repeat=\"item in selected\" ng-bind=\"{{label}}\">\n		</span>\n\n		<i ng-if=\"selected.length\" ng-click=\"remove(selected[0])\" class=\"fa fa-times chosen-remove\" ng-hide=\"clearButton === false\"></i>\n\n		<div><b></b></div>\n	</a>\n\n	<div class=\"chosen-drop\">\n		<div ng-show=\"!multiple\" class=\"chosen-search\">\n			<input type=\"text\" class=\"default search\" autocomplete=\"off\" ng-model=\"search\" ng-change=\"page=1;query()\">\n		</div>\n		<div ng-if=\"!request || request.isPending()\" class=\"chosen-spinner\" style=\"padding:20px;text-align:center\">\n			<span class=\"fa fa-spinner fa-spin\"></span>\n		</div>\n		<div ng-if=\"request.isFulfilled()\">\n			<div ng-show=\"request.value().items.length == 0\" style=\"padding:20px;text-align:center\">\n				{{ \'general.list.empty\' | translate }}\n				<div ng-show=\"!!created && !!createFactory && search != \'\'\"><a ng-click=\"create()\">\"{{search}}\" {{ \'general.add\' | translate }}</a></div>\n			</div>\n			<ul class=\"chosen-results\">\n				<li ng-repeat=\"item in request.value().items\" ng-class=\"{\'active-result\': isNotSelected(item), \'result-selected\': !isNotSelected(item), \'highlighted\': item.selected}\" ng-bind=\"{{label}}\" ng-click=\"add(item)\"></li>\n				<li ng-show=\"displayCreate && request.value().items.length != 0\" class=\"active-result\">\n					<a ng-click=\"create()\">\"{{search}}\" {{ \'general.add\' | translate }}</a>\n				</li>\n			</ul>\n\n			<div class=\"select-pagination\" ng-show=\"request.value().pages > 1\">\n				<div class=\"pages\">\n					{{ \'general.page\' | translate }} <span>{{ page }}</span> {{ \'general.of\' | translate }} <span>{{ request.value().pages }}</span>\n				</div>\n				<div class=\"pagination\"> \n					<ul class=\"pagination\">\n						<li ng-class=\"{disabled: page <= 1}\" class=\"hateoas-select-prev\">\n							<a ng-click=\"changePage(page - 1);\">\n								&laquo;\n							</a>\n						</li>\n						<li ng-class=\"{disabled: page >= request.value().pages}\" class=\"hateoas-select-next\">\n							<a ng-click=\"changePage(page + 1);\">\n								&raquo;\n							</a>\n						</li>\n					</ul>\n				</div>\n			</div>\n\n		</div>\n		<div ng-if=\"request.isRejected()\" style=\"padding:20px;text-align:center\">\n			{{ \'general.list.error\' | translate }}\n		</div>\n\n	</div>\n</div>\n");}]);
-angular.module('uebb.hateoas', ['mwl.bluebird', 'uebb.hateoas.templates', 'pascalprecht.translate']);
+angular.module('uebb.hateoas', ['uebb.hateoas.templates', 'pascalprecht.translate']);
 
+'use strict';
+
+angular.module('uebb.hateoas').filter( 'filesize', function () {
+    var units = [
+        'bytes',
+        'KB',
+        'MB',
+        'GB',
+        'TB',
+        'PB'
+    ];
+
+    return function( bytes, precision ) {
+        if ( isNaN( parseFloat( bytes )) || ! isFinite( bytes ) ) {
+            return '?';
+        }
+
+        var unit = 0;
+
+        while ( bytes >= 1024 ) {
+            bytes /= 1024;
+            unit ++;
+        }
+
+        return bytes.toFixed( + precision ) + ' ' + units[ unit ];
+    };
+});
 /**
  * Factory HateoasResource
  */
@@ -13,14 +40,14 @@ angular.module('uebb.hateoas').factory('HateoasResource',
     /**
      *
      * @param {@link $http} $http
-     * @param {@link $q} $q
+     * @param {@link Promise} Promise
      * @param {@link hateoasUtil} hateoasUtil
      * @param {@link hateoasCache} hateoasCache
      * @param {@link HateoasRequestError} HateoasRequestError
      *
      * @returns {@link HateoasResource}
      */
-        ["$http", "$q", "hateoasUtil", "hateoasCache", "HateoasRequestError", function ($http, $q, hateoasUtil, hateoasCache, HateoasRequestError) {
+        ["$http", "Promise", "hateoasUtil", "hateoasCache", "HateoasRequestError", function ($http, Promise, hateoasUtil, hateoasCache, HateoasRequestError) {
         'use strict';
 
 
@@ -43,13 +70,13 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {{}} data - The data in hal+json format
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.setData = function (data) {
             angular.copy(hateoasUtil.getProperties(data), this);
             this.$originalData = data;
             this.$links = hateoasUtil.getLinks(data);
-            return $q.resolve(this);
+            return Promise.resolve(this);
         };
 
         /**
@@ -77,12 +104,12 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @param {string} rel - The relation name to fetch
          * @param {{}} [params] - Additional GET params to append to the link url
          * @param {boolean} [ignoreCache=false] - Ignore the hateoas resource cache
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.getLink = function (rel, params, ignoreCache) {
             var href = this.getHref(rel);
             if (angular.isArray(href)) {
-                return $q.all(href.map(function (href) {
+                return Promise.all(href.map(function (href) {
                     return HateoasResource.get(href, params, ignoreCache);
                 }));
             }
@@ -90,7 +117,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 return HateoasResource.get(href, params, ignoreCache);
             }
             else {
-                return $q.reject(new Error('Link not found: ' + rel));
+                return Promise.reject(new Error('Link not found: ' + rel));
             }
         };
 
@@ -144,12 +171,12 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @public
          * @instance
          *
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.delete = function () {
             var url = this.getHref('self');
 
-            return $q.resolve(
+            return Promise.resolve(
                 $http({method: 'DELETE', url: url, headers: headers, withCredentials: true})
             ).then(function (response) {
                     hateoasCache.invalidateRelated(this);
@@ -321,7 +348,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {string} url - The url to post the resource to
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.post = function (url) {
             var data = this.getData();
@@ -343,7 +370,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 };
             }
 
-            return $q.resolve($http(conf))
+            return Promise.resolve($http(conf))
                 .then(function (response) {
                     if (response.status === 201) {
                         this.setHref('self', response.headers('Location'), true);
@@ -518,7 +545,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @public
          * @instance
          *
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.reload = function () {
             return HateoasResource.get(this.getHref('self'), null, true);
@@ -532,7 +559,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          *
          * @param {string} url - The url to save the resource to if it is new
          * @param {boolean} [touch=false] - Send an empty patch if there are no local changes
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.save = function (url, touch) {
             var promise;
@@ -560,17 +587,17 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @instance
          *
          * @param {boolean} [touch=false] - Send an empty patch if there are no local changes
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.prototype.patch = function (touch) {
             var url = this.getHref('self'),
                 patch = this.getChanges();
 
             if (patch.length === 0 && !touch) {
-                return $q.resolve(this);
+                return Promise.resolve(this);
             }
 
-            return $q.resolve($http({
+            return Promise.resolve($http({
                 method: 'PATCH',
                 url: url,
                 headers: headers,
@@ -603,24 +630,24 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @param {string} url - The URI to fetch
          * @param {{}} [params] - Additional GET params to append to the url
          * @param {boolean} [ignoreCache=false] - Ignore locally cached resources
-         * @returns {$q}
+         * @returns {Promise}
          */
         HateoasResource.get = function (url, params, ignoreCache) {
             url = hateoasUtil.addParamsToUrl(url, params);
 
-            var cached$q = hateoasCache.getCached$q(url);
-            // Return cached$q only if it is not rejected and only if it is pending if ignoreCache is set
-            if (cached$q && !cached$q.isRejected() && !(ignoreCache && cached$q.isResolved())) {
-                return cached$q;
+            var cachedPromise = hateoasCache.getCachedPromise(url);
+            // Return cachedPromise only if it is not rejected and only if it is pending if ignoreCache is set
+            if (cachedPromise && !cachedPromise.isRejected() && !(ignoreCache && cachedPromise.isResolved())) {
+                return cachedPromise;
             }
 
             if (!ignoreCache) {
                 if (hateoasCache.hasValidCache(url)) {
-                    return $q.resolve(hateoasCache.getCached(url));
+                    return Promise.resolve(hateoasCache.getCached(url));
                 }
             }
 
-            var canceler = $q.defer();
+            var canceler = Promise.defer();
 
             var request = $http({
                 method: 'GET',
@@ -630,11 +657,11 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 withCredentials: true
             });
 
-            var promise = $q.resolve(request)
+            var promise = Promise.resolve(request)
                 .cancellable()
-                .catch($q.CancellationError, function (e) {
+                .catch(Promise.CancellationError, function (e) {
                     canceler.resolve();
-                    return $q.reject(e);
+                    return Promise.reject(e);
                 })
                 .then(function (response) {
                     return hateoasCache.addToCache(response.data, response.headers);
@@ -736,11 +763,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
      * @class hateoasCache
      *
      * @param {@link hateoasUtil} hateoasUtil
-     * @param {@link $q} $q
+     * @param {@link Promise} Promise
      *
      * @returns {@link hateoasCache}
      */
-    ["hateoasUtil", "$q", function(hateoasUtil, $q) {
+    ["hateoasUtil", "Promise", function(hateoasUtil, Promise) {
         var cache = {};
 
         var contentTypeCtorMap = {};
@@ -778,11 +805,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * Get the promise of a cache entry
          *
          * @param {string} href -  The url
-         * @returns {$q}
+         * @returns {Promise}
          */
-        function getCached$q(href) {
+        function getCachedPromise(href) {
             href = hateoasUtil.normalizeUrl(href);
-            if (cache.hasOwnProperty(href) && cache[href].promise instanceof  $q && !cache[href].promise.isRejected() && !cache[href].invalid) {
+            if (cache.hasOwnProperty(href) && cache[href].promise instanceof  Promise && !cache[href].promise.isRejected() && !cache[href].invalid) {
                 return cache[href].promise;
             }
             return null;
@@ -877,7 +904,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @param {string} href - The resource's url
          * @param {HateoasResource} [resource] - The resource
          * @param {Function} [headers] -  The angular $htttp headers function from the request
-         * @param {$q} promise
+         * @param {Promise} promise
          */
         function setCached(href, resource, headers, promise) {
             href = hateoasUtil.normalizeUrl(href);
@@ -956,7 +983,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          *
          * @param {{}} data - The data in hal+json format
          * @param {{}} headers - The original $http headers function from the request
-         * @returns {$q}
+         * @returns {Promise}
          */
         function addToCache(data, headers) {
             var Ctor = getCtor(headers('Content-Type'));
@@ -993,7 +1020,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          *
          * @param {{}} data - The data in hal+json format
          * @param {{}} headers - The angular $http headers function from the original request
-         * @returns {$q}
+         * @returns {Promise}
          */
         function getEmbedded(data, headers) {
             var promises = [];
@@ -1008,7 +1035,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
                     promises.push(addToCache(embedded, headers));
                 }
             });
-            return $q.all(promises);
+            return Promise.all(promises);
         }
 
         /**
@@ -1094,7 +1121,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
             addToCache: addToCache,
             getCached: getCached,
             getCachedHeader: getCachedHeader,
-            getCached$q: getCached$q,
+            getCachedPromise: getCachedPromise,
             invalidateCache: invalidateCache,
             invalidateMatching: invalidateMatching,
             invalidateRelated: invalidateRelated,
@@ -1134,7 +1161,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
 
     /**
      * Get all items of the collection asynchronously
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.getItems = function () {
         return this.getLink('items')
@@ -1148,7 +1175,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
      * Set the data
      *
      * @param {{}} data - The data in hal+json format
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.setData = function (data) {
         return HateoasResource.prototype.setData.call(this, data)
@@ -1186,7 +1213,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
      *
      * @param {integer} page - The page to fetch
      * @param {integer} limit - The maximum items per page
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.fetchPage = function (page, limit) {
         var url = new URI(this.getHref('self'))
@@ -1202,7 +1229,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
     /**
      * Fetch the next page
      *
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.nextPage = function () {
         return HateoasResource.get(this.getHref('next'));
@@ -1211,7 +1238,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
     /**
      * Fetch the previous page
      *
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.previousPage = function () {
         return HateoasResource.get(this.getHref('previous') || this.getHref('prev'));
@@ -1221,7 +1248,7 @@ angular.module('uebb.hateoas').factory('HateoasCollection',
      * Query the collection
      *
      * @param {{}} params - The query params
-     * @returns {$q}
+     * @returns {Promise}
      */
     HateoasCollection.prototype.query = function (params) {
         params = params || {};
@@ -1271,7 +1298,7 @@ angular.module('uebb.hateoas').factory('HateoasRequestError',
 "use strict";
 
 angular.module('uebb.hateoas')
-    .directive('hateoasLink', ["$q", "$timeout", "HateoasResource", function($q, $timeout, HateoasResource) {
+    .directive('hateoasLink', ["Promise", "$timeout", "HateoasResource", function(Promise, $timeout, HateoasResource) {
 
         return {
             restrict: 'AEC',
@@ -1305,7 +1332,7 @@ angular.module('uebb.hateoas')
 
 
                 function fetch(currentValue, oldValue) {
-                    $q.resolve($scope.resource)
+                    Promise.resolve($scope.resource)
                         .then(function(resource) {
                             if (resource instanceof HateoasResource) {
                                 if (!$scope.update && (lastResource === resource && lastRel === $scope.rel)) {
@@ -1419,7 +1446,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 
 			});
 		},
-		controller: ["$scope", "$timeout", "HateoasResource", "$q", function($scope, $timeout, HateoasResource, $q) {
+		controller: ["$scope", "$timeout", "HateoasResource", "Promise", function($scope, $timeout, HateoasResource, Promise) {
 
 			$scope.page = $scope.page || 1;
 
@@ -1435,7 +1462,7 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 					$scope.update = false;
 
 
-					$q.resolve($scope.resource)
+					Promise.resolve($scope.resource)
 						.then(function(resource) {
 							if(resource instanceof HateoasResource) {
 
@@ -1652,10 +1679,10 @@ angular.module('uebb.hateoas').directive('hateoasSelectList', function() {
  */
 angular.module('uebb.hateoas').factory('hateoasUtil',
     /**
-     * @param {@link $q} $q
+     * @param {@link Promise} Promise
      * @returns {@link hateoasUtil}
      */
-    ["$q", function($q) {
+    ["Promise", function(Promise) {
         /* global File */
         /* global FormData */
 
@@ -1959,6 +1986,16 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
 "use strict";
 
 angular.module('uebb.hateoas')
+    .factory('Promise', ["$rootScope", function($rootScope) {
+        window.Promise.setScheduler(function (cb) {
+            $rootScope.$evalAsync(cb);
+        });
+        return window.Promise;
+    }]);
+
+"use strict";
+
+angular.module('uebb.hateoas')
     .directive('selectFile', ["$timeout", "HateoasResource", function($timeout, HateoasResource) {
         return {
             templateUrl: 'uebb_hateoas_templates/select-file.html',
@@ -2137,7 +2174,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', ["$timeout", function(
 				return true;
 			}
 		},
-		controller: ["$scope", "HateoasResource", "HateoasCollection", "$timeout", "$q", function($scope, HateoasResource, HateoasCollection, $timeout, $q) {
+		controller: ["$scope", "HateoasResource", "HateoasCollection", "$timeout", "Promise", function($scope, HateoasResource, HateoasCollection, $timeout, Promise) {
 			$scope.add = function(item) {
 				if($scope.multiple) {
 					if($scope.multiple !== true && $scope.selected.length >= $scope.multiple) {
@@ -2187,7 +2224,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', ["$timeout", function(
 
 			$scope.existing = [];
 			$scope.$watch('resource', function() {
-				$q.resolve($scope.resource)
+				Promise.resolve($scope.resource)
 					.then(function(resource) {
 						if(resource instanceof HateoasResource) {
 
@@ -2331,7 +2368,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', ["$timeout", function(
 			};
 
 			$scope.create = function() {
-				$q.resolve($scope.createFactory({search: $scope.search})).then(function(newItem) {
+				Promise.resolve($scope.createFactory({search: $scope.search})).then(function(newItem) {
 					$scope.created.push(newItem);
 					$scope.selected.push(newItem);
 					$scope.search = '';
@@ -2355,7 +2392,7 @@ angular.module('uebb.hateoas').directive('selectHateoas', ["$timeout", function(
 			});
 
 			$scope.$watch('srcResource', function(srcResource) {
-				$q.resolve(srcResource)
+				Promise.resolve(srcResource)
 					.then(function(srcResource) {
 						if(srcResource instanceof HateoasResource && $scope.srcRel) {
 							$scope.url = srcResource.getHref($scope.srcRel);

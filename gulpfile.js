@@ -8,7 +8,7 @@ var merge = require('gulp-merge');
 gulp.task('default', function () {
 
     return merge(
-        gulp.src('src/templates/*.html').pipe(templateCache('templates.js', {module:'uebb.hateoas.templates', standalone: true, root: 'uebb_hateoas_templates'})),
+        gulp.src('src/templates/*.html').pipe(templateCache('templates.js', {module:'uebb.hateoas', root: 'uebb_hateoas_templates'})),
         gulp.src(['src/js/hateoas.js', 'src/js/*.js']).pipe(ngAnnotate())
     )
         .pipe(concat('uebb-angular-hateoas.js'))
