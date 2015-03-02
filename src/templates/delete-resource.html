@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{ labelPrefix + '.delete.header' | translate }}</h3>
+</div>
+
+<div class="modal-body">
+
+    <p>
+        {{ labelPrefix + '.delete.description' | translate }}
+    </p>
+    <p>
+        <span ng-bind="{{ label }}"></span>
+    </p>
+
+    <span ng-repeat="fieldErrors in errors">
+        <span class="help-block" ng-repeat="message in fieldErrors">{{ message | translate}}</span>
+    </span>
+</div>
+<div class="modal-footer">
+
+    <button class="btn btn-primary" ng-disabled="request.isPending()" ng-click="delete()" >
+        <i class="fa" ng-class="{'fa-spinner fa-spin': request.isPending(), 'fa-trash-o': !request.isPending()}"></i>
+        {{ labelPrefix + '.delete.ok' | translate }}
+    </button>
+
+    <button class="btn btn-cancel" ng-disabled="request.isPending()" ng-click="$close(); onCancel()">
+        <i class="fa fa-times"></i>
+        {{ labelPrefix + '.delete.cancel' | translate }}
+    </button>
+</div>

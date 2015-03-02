@@ -1,9 +1,79 @@
-angular.module("uebb.hateoas.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("uebb_hateoas_templates/hateoas-link.html","<div>\n    <div ng-show=\"promise.isFulfilled()\" class=\"transclude-content\"></div>\n\n    <div ng-if=\"!disableSpinner && (!promise || promise.isPending())\">\n        <span class=\"fa fa-spinner fa-spin\"></span> {{ labelPrefix + \'.loading\' }}\n    </div>\n\n    <div ng-if=\"promise.isRejected()\">\n        {{ labelPrefix + \'.error\' }}\n    </div>\n\n\n</div>");
-$templateCache.put("uebb_hateoas_templates/hateoas-list.html","<div ng-show=\"if !== false\" class=\"hateoas-list\">\n\n	<div ng-show=\"orderFields\" class=\"element-spacing-small\">\n		{{ \'general.list.order.label\' | translate }} &nbsp;&nbsp;&nbsp;\n		<div class=\"btn-group\">\n			<a href data-toggle=\"dropdown\" class=\"btn btn-link dropdown-toggle\">\n				<i class=\"fa fa-fw fa-sort\"></i>{{ labelPrefix + \'.field.\' + orderField | translate }} <span class=\"caret\"></span>\n			</a>\n			<ul class=\"dropdown-menu\" role=\"menu\">\n				<li ng-repeat=\"field in orderFields\" ng-class=\"{\'active\': orderField == field}\">\n					<a dropdown-toggle href ng-click=\"setOrder(field, orderDirection)\"><i class=\"fa fa-fw fa-sort\"></i>{{ labelPrefix + \'.field.\' + field | translate }} </a>\n				</li>\n			</ul>\n		</div>\n		<div class=\"btn-group\">\n			<a href data-toggle=\"dropdown\" class=\"btn btn-link dropdown-toggle\">\n				<i class=\"fa fa-fw\" ng-class=\"{\'fa-sort-amount-asc\': orderDirection == \'ASC\', \'fa-sort-amount-desc\': orderDirection == \'DESC\'}\"></i>{{ \'general.list.direction.\' + orderDirection | translate }} <span class=\"caret\"></span>\n			</a>\n			<ul class=\"dropdown-menu\" role=\"menu\">\n				<li ng-class=\"{\'active\': orderDirection == \'ASC\'}\">\n					<a dropdown-toggle href ng-click=\"setOrder(orderField, \'ASC\')\"><i class=\"fa fa-fw fa-sort-amount-asc\"></i>{{ \'general.list.order.direction.ASC\' | translate }}</a>\n				</li>\n				<li ng-class=\"{\'active\': orderDirection == \'DESC\'}\">\n					<a dropdown-toggle href ng-click=\"setOrder(orderField, \'DESC\')\"><i class=\"fa fa-fw fa-sort-amount-desc\"></i>{{ \'general.list.order.direction.DESC\' | translate }}</a>\n				</li>\n			</ul>\n		</div>\n	</div>\n\n\n	<div class=\"response element-spacing-small\" ng-show=\"!disableMessages\">\n\n		<div ng-show=\"!disableSpinner && (!promise || promise.isPending())\">\n			<span class=\"fa fa-spinner fa-spin\"></span> {{ labelPrefix + \'.loading\' | translate }}\n		</div>\n\n		<div ng-show=\"transcludeScope.error\">\n			{{ labelPrefix + \'.error\' | translate }}\n			{{trancludeScope.error}}\n		</div>\n\n		<div ng-show=\"promise.isResolved() && !transcludeScope.error && transcludeScope[as || rel].length === 0\">\n			{{ labelPrefix + \'.empty\' | translate }}\n		</div>\n\n	</div>\n\n	<div ng-show=\"promise.isResolved() && !transcludeScope.error\" class=\"hateoas-list-items transclude-content\"></div>\n\n	<div class=\"hateoas-pagination\">\n		<pagination\n				class=\"pagination-sm\"\n				ng-show=\"!disablePagination && pages > 1\"\n				total-items=\"pages * limit\"\n				items-per-page=\"limit\"\n				ng-model=\"page\"\n				previous-text=\"&lt;\"\n				next-text=\"&gt;\"\n				first-text=\"&lt;&lt;\"\n				last-text=\"&gt;&gt;\"\n				boundary-links=\"true\"\n				max-size=\"3\"\n				rotate=\"false\">\n		</pagination>\n	</div>\n\n</div>\n\n<div ng-show=\"bare\" class=\"transclude-bare\"></div>\n");
-$templateCache.put("uebb_hateoas_templates/hateoasSelectList.html","<div class=\"row\">\n	<div class=\"col-sm-12\">\n		<div class=\"hateoas-select-list-wrap\">\n			<div class=\"row hateoas-select-list\">\n				<div class=\"col-sm-5 selected-items-wrap\">\n					<div class=\"selected-items\">\n						<h2>{{ (labelPrefix + \'.selected.header\') | translate }}</h2>\n						<input type=\"text\" ng-model=\"searchSelected\" placeholder=\"{{ labelPrefix + \'.placeholder.search\' | translate }}\" class=\"form-control\" />\n						<hateoas-list resource=\"resource\"\n									  rel=\"{{ rel }}\"\n									  as=\"items\"\n									  update=\"updateSelected\"\n									  search=\"searchSelected\"\n									  label-prefix=\"{{ labelPrefix }}.selected\"\n									  order-field=\"{{ orderField }}\"\n									  order-direction=\"{{ orderField }}\">\n							<table class=\"table table-border table-hover table-condensed table-striped\">\n								<tr ng-if=\"items.length > 0\">\n									<th colspan=\"2\">{{ (labelPrefix + \'.selected.currently_assigned\') | translate }}</th>\n								</tr>\n								<tr ng-repeat=\"item in items\" ng-class=\"{ removed: inArray(item, removed) }\">\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n									<td style=\"width: 50px;\" class=\"text-center\">\n										<a class=\"btn-pointer\"\n										   ng-click=\"remove(item)\"\n										   ng-hide=\"inArray(item, removed)\"\n										   tooltip=\"{{ \'general.item.remove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-trash-o\"></span></a>\n										<a class=\"btn-pointer\"\n										   ng-click=\"undoRemove(item)\"\n										   ng-show=\"inArray(item, removed)\"\n										   tooltip=\"{{ \'general.item.undoRemove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-undo\"></span></a>\n									</td>\n								</tr>\n\n								<tr ng-if=\"added.length > 0\">\n									<th colspan=\"2\">{{ (labelPrefix + \'.selected.recently_added\') | translate }}</th>\n								</tr>\n								<tr ng-repeat=\"item in added\">\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n									<td style=\"width: 50px;\" class=\"text-center\">\n										<a class=\"btn-pointer\"\n										   ng-click=\"undoAdd(item)\"\n										   tooltip=\"{{ \'general.item.remove\' | translate }}\"\n										   tooltip-append-to-body=\"true\"><span class=\"fa fa-trash-o\"></span></a>\n									</td>\n								</tr>\n							</table>\n						</hateoas-list>\n					</div>\n				</div>\n\n				<div class=\"col-sm-2 chevron-wrap\">\n					<div class=\"chevron\">\n						<span class=\"fa fa-chevron-left fa-2x hidden-xs\"></span>\n						<span class=\"fa fa-chevron-up fa-2x visible-xs\"></span>\n					</div>\n				</div>\n\n				<div class=\"col-sm-5 available-items\">\n					<h2>{{ (labelPrefix + \'.available.header\') | translate }}</h2>\n					<input type=\"text\" ng-model=\"searchAvailable\" placeholder=\"{{ labelPrefix + \'.placeholder.search\' | translate }}\" class=\"form-control\" />\n					<hateoas-list resource=\"srcResource\"\n								  rel=\"{{ srcRel }}\"\n								  as=\"items\"\n								  update=\"updateAvailable\"\n								  search=\"searchAvailable\"\n								  filter=\"srcFilter\"\n								  if=\"resource\"\n								  label-prefix=\"{{ labelPrefix }}.available\"\n								  order-field=\"{{ orderField }}\"\n								  order-direction=\"{{ orderDirection }}\">\n\n						<table class=\"table table-border table-hover table-condensed table-striped\">\n							<tbody>\n								<tr ng-repeat=\"item in items\"\n									ng-hide=\"inArray(item, added)\"\n									ng-click=\"add(item)\"\n									style=\"cursor: pointer\"\n									tooltip=\"{{ \'general.item.add\' | translate }}\"\n									tooltip-append-to-body=\"true\">\n									<td style=\"width: 20px;\" class=\"text-center\">\n										<a class=\"btn-pointer\" ng-click=\"add(item)\"><span class=\"fa fa-plus\"></span></a>\n									</td>\n									<td ng-bind=\"{{ itemLabel }}\"></td>\n								</tr>\n							</tbody>\n						</table>\n					</hateoas-list>\n				</div>\n			</div>\n		</div>\n	</div>\n</div>");
-$templateCache.put("uebb_hateoas_templates/select-file.html","<div class=\"select-file\">\n\n        <hateoas-list disable-pagination=\"true\" disable-messages=\"true\" resource=\"linkResource\" limit=\"0\" rel=\"{{linkRel}}\" as=\"existingFiles\" update=\"data.updateExisting\">\n            <div ng-if=\"existingFiles.length > 0\" class=\"existing-files\">\n                <h5>{{ \'file.label.existingFiles\' | translate }}</h5>\n                <ul>\n                    <li ng-repeat=\"file in existingFiles\">\n\n                        {{ file.name }} ({{file.size | filesize}})\n                        <a class=\"btn-pointer\" delete-resource=\"file\" on-delete=\"data.updateExisting = true\" label=\"linkResource.name\">\n                            <i class=\"fa fa-trash-o\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                        </a>\n                    </li>\n                </ul>\n            </div>\n        </hateoas-list>\n\n        <div ng-if=\"files.length > 0\" class=\"new-files\">\n            <h5>{{ \'file.label.newFiles\' | translate }}</h5>\n\n            <ul>\n                <li ng-repeat=\"file in files\">\n\n                    <span ng-class=\"{\'text-danger\' : getFileErrors(file) !== null}\">\n                        {{ file[uploadProperty].name }} ({{ file[uploadProperty].size | filesize}})\n                    </span>\n\n            <span ng-if=\"file.$newVersion\">\n                        &nbsp; <span tooltip=\"{{ \'file.label.newVersion\' | translate }}\" tooltip-append-to-body=\"true\" class=\"btn-help\"><i class=\"fa fa-asterisk\"></i></span> &nbsp;\n                    </span>\n\n                    <a title=\"remove\" class=\"btn-pointer\" ng-click=\"files.splice(files.indexOf(file), 1)\">\n                        <i class=\"fa fa-times\" tooltip=\"{{ \'file.label.delete\' | translate }}\"></i>\n                    </a>\n\n                    <div class=\"help-block\" ng-if=\"getFileErrors(file) !== null\">\n                        <ul>\n                            <li ng-repeat=\"message in getFileErrors(file).uploadedFile.errors\" translate=\"{{ message }}\" ></li>\n                        </ul>\n                    </div>\n\n                </li>\n            </ul>\n\n        </div>\n\n        <span class=\"btn btn-default btn-file\">\n\n            {{ label | translate }} <input type=\"file\" accept=\"{{ mimeTypes }}\" />\n        </span>\n</div>");
-$templateCache.put("uebb_hateoas_templates/select-hateoas.html","<div class=\"chosen-container\"\n	 style=\"width:100%\"\n	 ng-class=\"{\'chosen-with-drop\': showDropdown, \'chosen-container-active\': active, \'chosen-container-single\': !multiple, \'chosen-container-multi\': !!multiple, \'chosen-disabled\':disabled}\">\n\n	<ul ng-show=\"multiple\" class=\"chosen-choices\">\n		<li ng-repeat=\"item in selected\" class=\"search-choice\">\n			<span ng-bind=\"{{label}}\"></span>\n			<a class=\"search-choice-close\" ng-click=\"remove(item)\"></a>\n		</li>\n		<li class=\"search-field\">\n			<input ng-show=\"active\"\n				   type=\"text\"\n				   ng-model=\"search\"\n				   class=\"default search\"\n				   autocomplete=\"off\"\n				   style=\"width: 125px;\"\n				   ng-change=\"page=1;showDropdown=true;query()\"\n				   ng-keydown=\"type($event)\" />\n			<input ng-hide=\"active || selected.length > 0\" type=\"text\" ng-disabled=\"disabled\" value=\"{{placeholder}}\" class=\"default\" />\n		</li>\n	</ul>\n\n\n	<a ng-show=\"!multiple\" class=\"chosen-single chosen-default\">\n		<span ng-if=\"selected.length == 0\">{{placeholder}}</span>\n		<span ng-if=\"selected.length\" ng-repeat=\"item in selected\" ng-bind=\"{{label}}\">\n		</span>\n\n		<i ng-if=\"selected.length\" ng-click=\"remove(selected[0])\" class=\"fa fa-times chosen-remove\" ng-hide=\"clearButton === false\"></i>\n\n		<div><b></b></div>\n	</a>\n\n	<div class=\"chosen-drop\">\n		<div ng-show=\"!multiple\" class=\"chosen-search\">\n			<input type=\"text\" class=\"default search\" autocomplete=\"off\" ng-model=\"search\" ng-change=\"page=1;query()\">\n		</div>\n		<div ng-if=\"!request || request.isPending()\" class=\"chosen-spinner\" style=\"padding:20px;text-align:center\">\n			<span class=\"fa fa-spinner fa-spin\"></span>\n		</div>\n		<div ng-if=\"request.isFulfilled()\">\n			<div ng-show=\"request.value().items.length == 0\" style=\"padding:20px;text-align:center\">\n				{{ \'general.list.empty\' | translate }}\n				<div ng-show=\"!!created && !!createFactory && search != \'\'\"><a ng-click=\"create()\">\"{{search}}\" {{ \'general.add\' | translate }}</a></div>\n			</div>\n			<ul class=\"chosen-results\">\n				<li ng-repeat=\"item in request.value().items\" ng-class=\"{\'active-result\': isNotSelected(item), \'result-selected\': !isNotSelected(item), \'highlighted\': item.selected}\" ng-bind=\"{{label}}\" ng-click=\"add(item)\"></li>\n				<li ng-show=\"displayCreate && request.value().items.length != 0\" class=\"active-result\">\n					<a ng-click=\"create()\">\"{{search}}\" {{ \'general.add\' | translate }}</a>\n				</li>\n			</ul>\n\n			<div class=\"select-pagination\" ng-show=\"request.value().pages > 1\">\n				<div class=\"pages\">\n					{{ \'general.page\' | translate }} <span>{{ page }}</span> {{ \'general.of\' | translate }} <span>{{ request.value().pages }}</span>\n				</div>\n				<div class=\"pagination\"> \n					<ul class=\"pagination\">\n						<li ng-class=\"{disabled: page <= 1}\" class=\"hateoas-select-prev\">\n							<a ng-click=\"changePage(page - 1);\">\n								&laquo;\n							</a>\n						</li>\n						<li ng-class=\"{disabled: page >= request.value().pages}\" class=\"hateoas-select-next\">\n							<a ng-click=\"changePage(page + 1);\">\n								&raquo;\n							</a>\n						</li>\n					</ul>\n				</div>\n			</div>\n\n		</div>\n		<div ng-if=\"request.isRejected()\" style=\"padding:20px;text-align:center\">\n			{{ \'general.list.error\' | translate }}\n		</div>\n\n	</div>\n</div>\n");}]);
-angular.module('uebb.hateoas', ['uebb.hateoas.templates', 'pascalprecht.translate']);
+angular.module('uebb.hateoas', ['pascalprecht.translate', 'uebb.hateoas.templates']);
+
+/**
+ * Directive delete-resource
+ */
+angular.module('uebb.hateoas')
+    .directive('deleteResource', function() {
+        'use strict';
+        return {
+            scope: {
+                deleteResource: '=',
+                onDelete: '&',
+                onCancel: '&',
+                label: '@',
+                labelPrefix: '@'
+            },
+            restrict: 'A',
+            transclude: true,
+            template: '<span ng-transclude />',
+            link: function(scope, element, controller) {
+                element.on('click', function() {
+                    scope.openPopup();
+                });
+            },
+            controller: ["$scope", "deletePopup", function($scope, deletePopup) {
+                $scope.openPopup = function() {
+                    deletePopup({
+                        resource: $scope.deleteResource,
+                        onDelete: $scope.onDelete,
+                        onCancel: $scope.onCancel,
+                        label: $scope.label,
+                        labelPrefix: $scope.labelPrefix
+                    });
+                };
+            }]
+        };
+    })
+    .factory('deletePopup', ["$modal", "$rootScope", function($modal, $rootScope) {
+        'use strict';
+
+        return function (config) {
+            var scope = $rootScope.$new();
+
+            scope.resource = config.resource;
+            scope.label = config.label || 'resource';
+            scope.labelPrefix = config.labelPrefix || 'general';
+            scope.onDelete = config.onDelete;
+            scope.onCancel = config.onDeleted;
+
+
+            var modal = $modal.open({
+                templateUrl: 'uebb_hateoas_templates/delete-resource.html',
+                keyboard: false,
+                scope: scope,
+                backdrop: 'static'
+            });
+
+            scope.delete = function() {
+                scope.resource.delete()
+                    .then(function() {
+                        modal.close();
+                        if (scope.onDelete) {
+                            scope.onDelete();
+                        }
+                    }, function(response) {
+                        scope.error = response.data;
+                    });
+            };
+
+            return {
+                close: function () {
+                    modal.close();
+                }
+            };
+        };
+    }]);
 
 'use strict';
 
@@ -390,8 +460,8 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @returns {Array}
          */
         HateoasResource.prototype.getChanges = function () {
-            var oldData = hateoasUtil.removeVirtualLinks(hateoasUtil.getNormalizedData(this.$originalData));
-            var newData = hateoasUtil.removeVirtualLinks(this.getData());
+            var oldData = hateoasUtil.getNormalizedData(this.$originalData);
+            var newData = this.getData();
 
             var oldLinks = oldData[hateoasUtil.linksProperty];
             var newLinks = newData[hateoasUtil.linksProperty];
@@ -619,8 +689,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
         HateoasResource.setContentType = function (contentType, ctor) {
             hateoasCache.setContentType(contentType, ctor);
         };
-
-        hateoasCache.setContentType('application/vnd.uebb.resource+json', HateoasResource);
+        
         hateoasCache.setDefaultCtor(HateoasResource);
 
         /**
@@ -763,11 +832,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
      * @class hateoasCache
      *
      * @param {@link hateoasUtil} hateoasUtil
-     * @param {@link Promise} Promise
+     * @param {@link $q} $q
      *
      * @returns {@link hateoasCache}
      */
-    ["hateoasUtil", "Promise", function(hateoasUtil, Promise) {
+    ["hateoasUtil", "$q", function(hateoasUtil, $q) {
         var cache = {};
 
         var contentTypeCtorMap = {};
@@ -805,11 +874,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * Get the promise of a cache entry
          *
          * @param {string} href -  The url
-         * @returns {Promise}
+         * @returns {$q}
          */
         function getCachedPromise(href) {
             href = hateoasUtil.normalizeUrl(href);
-            if (cache.hasOwnProperty(href) && cache[href].promise instanceof  Promise && !cache[href].promise.isRejected() && !cache[href].invalid) {
+            if (cache.hasOwnProperty(href) && cache[href].promise instanceof  $q && !cache[href].promise.isRejected() && !cache[href].invalid) {
                 return cache[href].promise;
             }
             return null;
@@ -904,7 +973,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @param {string} href - The resource's url
          * @param {HateoasResource} [resource] - The resource
          * @param {Function} [headers] -  The angular $htttp headers function from the request
-         * @param {Promise} promise
+         * @param {$q} promise
          */
         function setCached(href, resource, headers, promise) {
             href = hateoasUtil.normalizeUrl(href);
@@ -964,6 +1033,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @returns {HateoasResource}
          */
         function getCtor(contentType) {
+
             if (!contentTypeCtorMap[contentType]) {
                 for (var pattern in contentTypeCtorMap) {
                     if (contentTypeCtorMap.hasOwnProperty(pattern)) {
@@ -983,7 +1053,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          *
          * @param {{}} data - The data in hal+json format
          * @param {{}} headers - The original $http headers function from the request
-         * @returns {Promise}
+         * @returns {$q}
          */
         function addToCache(data, headers) {
             var Ctor = getCtor(headers('Content-Type'));
@@ -1020,7 +1090,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          *
          * @param {{}} data - The data in hal+json format
          * @param {{}} headers - The angular $http headers function from the original request
-         * @returns {Promise}
+         * @returns {$q}
          */
         function getEmbedded(data, headers) {
             var promises = [];
@@ -1035,7 +1105,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
                     promises.push(addToCache(embedded, headers));
                 }
             });
-            return Promise.all(promises);
+            return $q.all(promises);
         }
 
         /**
@@ -1140,128 +1210,6 @@ angular.module('uebb.hateoas').factory('hateoasCache',
 
 'use strict';
 
-angular.module('uebb.hateoas').factory('HateoasCollection',
-/**
- * @param {@link HateoasResource} HateoasResource
- * @returns {@link HateoasCollection}
- */
-["HateoasResource", function(HateoasResource) {
-
-	/**
-	 *
-	 * @class
-     * @extends HateoasResource
-	 */
-    function HateoasCollection() {
-        HateoasResource.apply(this, arguments);
-        this.items = [];
-    }
-
-    HateoasCollection.prototype = Object.create(HateoasResource.prototype);
-
-    /**
-     * Get all items of the collection asynchronously
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.getItems = function () {
-        return this.getLink('items')
-            .then(function (items) {
-                this.items = items;
-                return this.items;
-            }.bind(this));
-    };
-
-    /**
-     * Set the data
-     *
-     * @param {{}} data - The data in hal+json format
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.setData = function (data) {
-        return HateoasResource.prototype.setData.call(this, data)
-            .then(function () {
-                return this.getItems();
-            }.bind(this))
-            .then(function (items) {
-                return this;
-            }.bind(this));
-    };
-
-    /**
-     * A collection only has links, no regular properties
-     * @returns {{}}
-     */
-    HateoasCollection.prototype.getData = function () {
-        var data = HateoasResource.prototype.getData.call(this);
-        delete(data.items);
-        return data;
-    };
-
-
-    /**
-     * Override the save function to disallow save
-     *
-     * @type {Function}
-     */
-    HateoasCollection.prototype.post = HateoasCollection.prototype.patch = function () {
-        throw 'Collections cannot be saved';
-    };
-
-
-    /**
-     * Fetch another page of the collection
-     *
-     * @param {integer} page - The page to fetch
-     * @param {integer} limit - The maximum items per page
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.fetchPage = function (page, limit) {
-        var url = new URI(this.getHref('self'))
-            .removeSearch('page')
-            .removeSearch('limit')
-            .addSearch('page', page)
-            .addSearch('limit', limit === undefined ? this.limit : limit)
-            .build();
-
-        return HateoasResource.get(url);
-    };
-
-    /**
-     * Fetch the next page
-     *
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.nextPage = function () {
-        return HateoasResource.get(this.getHref('next'));
-    };
-
-    /**
-     * Fetch the previous page
-     *
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.previousPage = function () {
-        return HateoasResource.get(this.getHref('previous') || this.getHref('prev'));
-    };
-
-    /**
-     * Query the collection
-     *
-     * @param {{}} params - The query params
-     * @returns {Promise}
-     */
-    HateoasCollection.prototype.query = function (params) {
-        params = params || {};
-        params.page = params.page || 1;
-        return HateoasResource.get(this.getHref('self'), params);
-    };
-
-    return HateoasCollection;
-
-}]);
-
-'use strict';
-
 /**
  * HateoasRequestError
  */
@@ -1352,14 +1300,11 @@ angular.module('uebb.hateoas')
                                     $scope.promise.cancel();
                                 }
 
-
-
                                 $scope.promise = resource.getLink($scope.rel, null, ignoreCache)
                                     .then(function(result) {
                                         var args = {};
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = result;
                                         $scope.onLoad(args);
-
                                     }, function(error) {
                                         $scope.transcludeScope.error = error;
                                     })
@@ -1415,7 +1360,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 			filter: '=?',
 			page: '@',
 			search: '=?',
-			autoUpdate: '=?',
 			update: '=?',
 			orderFields: '=?',
 			orderField: '@',
@@ -1450,17 +1394,16 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 
 			$scope.page = $scope.page || 1;
 
-			var request = null;
+            var lastParamsString;
 
-            var lastParamsString = '';
-			var fetch = function() {
+			function fetch() {
+
 				if($scope.if !== false) {
 					$scope.transcludeScope.error = null;
 					var invalidate = $scope.update || !!$scope.ignoreCache();
                     var update = $scope.update;
 
-					$scope.update = false;
-
+                    $scope.update = false;
 
 					Promise.resolve($scope.resource)
 						.then(function(resource) {
@@ -1493,50 +1436,43 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                     page:  $scope.page
                                 };
 
+
+
                                 var newParamsString = JSON.stringify(params);
-                                if (newParamsString === lastParamsString && request && !update) {
+                                if (newParamsString === lastParamsString && !update && $scope.promise && $scope.promise.isPending()) {
                                     return;
                                 }
                                 lastParamsString = newParamsString;
-
-                                if(request) {
-                                    $timeout.cancel(request);
-                                }
 
                                 if($scope.promise && $scope.promise.isPending()) {
                                     $scope.promise.cancel();
                                 }
 
-								request = $timeout(function() {
-									$scope.transcludeScope.error = null;
+                                $scope.transcludeScope.error = null;
 
-									$scope.promise = resource.getLink($scope.rel, params, invalidate).then(function(result) {
-											var args = {}
+                                var args = {}
 
-											if($scope.resourceAs) {
-												$scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
-											}
+                                $scope.promise = resource.getLink($scope.rel, params, invalidate)
+                                    .then(function(result) {
+                                        if($scope.resourceAs) {
+                                            $scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
+                                        }
 
-
-											args[$scope.as || $scope.rel] = result.items;
-
-											$scope.pages = result.pages;
-											//$scope.limit = '' + result.limit;
-											$scope.page = '' + result.page;
-											$scope.result = result;
-
-											$scope.onLoad(args);
-
-										}.bind(this),
-											function(error) {
-												$scope.transcludeScope.error = error;
-											}.bind(this));
-								}.bind(this), 50);
-
+                                        $scope.pages = result.pages;
+                                        $scope.page = '' + result.page;
+                                        $scope.result = result;
+                                        return result.getLink('items');
+                                    })
+                                    .then(function(items) {
+                                        $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = items;
+                                        $scope.onLoad(args);
+                                    }, function(error) {
+                                        $scope.transcludeScope.error = error;
+                                    });
 							}
-						}.bind(this));
+						});
 				}
-			}.bind(this);
+			}
 
             $scope.$watch('if', fetch);
             $scope.$watch('page', fetch);
@@ -1545,10 +1481,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
             $scope.$watch('orderField', fetch);
             $scope.$watch('orderDirection', fetch);
             $scope.$watch('resource', fetch);
-
-            $scope.$watch('result.items', function(items) {
-                $scope.transcludeScope[$scope.as || $scope.rel] = items;
-            }.bind(this), true);
 
             $scope.$watch('labelPrefix', function() {
                 $scope.labelPrefix = ((!$scope.labelPrefix || $scope.labelPrefix === '') ? 'general.list' : $scope.labelPrefix);
@@ -1679,10 +1611,9 @@ angular.module('uebb.hateoas').directive('hateoasSelectList', function() {
  */
 angular.module('uebb.hateoas').factory('hateoasUtil',
     /**
-     * @param {@link Promise} Promise
      * @returns {@link hateoasUtil}
      */
-    ["Promise", function(Promise) {
+    function() {
         /* global File */
         /* global FormData */
 
@@ -1744,7 +1675,7 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                     }
                     else if (Array.isArray(cur)) {
                         for (i = 0, l = cur.length; i < l; i++) {
-                            recurse(cur[i], prop ? prop + "[]" : "" + i);
+                            recurse(cur[i], prop ? prop + '[' + i + ']' : '' + i);
                         }
                         if (l === 0) {
                             result[prop] = [];
@@ -1923,44 +1854,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 return normalized;
             },
             /**
-             * Virtual links don't end with an (integer) id
-             * @param {{string}} link The url
-             * @returns {boolean}
-             */
-            isVirtual: function isVirtual(link) {
-                return isNaN(parseInt(link.href.split('/').pop(), 10));
-            },
-            /**
-             * Non virtual links end with an (integer) id
-             * @param {{string}} link The url
-             * @returns {boolean}
-             */
-            isNotVirtual: function isNotVirtual(link) {
-                return !hateoasUtil.isVirtual(link);
-            },
-            /**
-             * Removes all non-virtual links from a json-hal style data object
-             *
-             * @param {{}} data - The source data
-             * @returns {{}} - The filtered data
-             */
-            removeVirtualLinks: function removeVirtualLinks(data) {
-
-                Object.keys(data[hateoasUtil.linksProperty]).forEach(function (rel) {
-                    var links = data[hateoasUtil.linksProperty][rel];
-                    if (angular.isArray(links)) {
-                        data[hateoasUtil.linksProperty][rel] = links.filter(hateoasUtil.isNotVirtual);
-                    }
-                    else {
-                        if (data[hateoasUtil.linksProperty][rel] && hateoasUtil.isVirtual(data[hateoasUtil.linksProperty][rel])) {
-                            delete(data[hateoasUtil.linksProperty][rel]);
-                        }
-                    }
-                });
-
-                return data;
-            },
-            /**
              * Adds an additional path portion to a link if given
              * @param {{string}} link - The url
              * @param {{string}} additional - The additional path portion
@@ -1975,12 +1868,10 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                     return link;
                 }
             }
-
-
         };
 
         return hateoasUtil;
-    }]
+    }
 );
 
 "use strict";
@@ -2003,7 +1894,7 @@ angular.module('uebb.hateoas')
             scope: {
                 linkRel: '@',
                 linkResource: '=?',
-                resource: '=',
+                resource: '&',
                 uploadProperty: '=?',
                 multiple: '=?',
                 files: '=?',
@@ -2020,8 +1911,6 @@ angular.module('uebb.hateoas')
                 scope.data = {updateExisting: false};
                 scope.uploadProperty = scope.uploadProperty || 'upload';
                 scope.files = scope.files || [];
-
-
                     element.find('input[type=file]').on('change', function(changeEvent) {
                     $timeout(function() {
                         var resource;
@@ -2029,7 +1918,7 @@ angular.module('uebb.hateoas')
                             /**
                              * @type {HateoasResource}
                              */
-                            resource = scope.resource || new HateoasResource();
+                            resource = scope.resource() || new HateoasResource();
                             resource[scope.uploadProperty || 'upload'] = changeEvent.target.files.item(i);
                             if(scope.linkResource && scope.linkRel && !resource.hasLink(scope.linkRel, scope.linkResource)) {
                                 resource.setLink(scope.linkRel, scope.linkResource);

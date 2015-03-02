@@ -21,7 +21,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 			filter: '=?',
 			page: '@',
 			search: '=?',
-			autoUpdate: '=?',
 			update: '=?',
 			orderFields: '=?',
 			orderField: '@',
@@ -56,17 +55,16 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 
 			$scope.page = $scope.page || 1;
 
-			var request = null;
+            var lastParamsString;
 
-            var lastParamsString = '';
-			var fetch = function() {
+			function fetch() {
+
 				if($scope.if !== false) {
 					$scope.transcludeScope.error = null;
 					var invalidate = $scope.update || !!$scope.ignoreCache();
                     var update = $scope.update;
 
-					$scope.update = false;
-
+                    $scope.update = false;
 
 					Promise.resolve($scope.resource)
 						.then(function(resource) {
@@ -99,50 +97,43 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                     page:  $scope.page
                                 };
 
+
+
                                 var newParamsString = JSON.stringify(params);
-                                if (newParamsString === lastParamsString && request && !update) {
+                                if (newParamsString === lastParamsString && !update && $scope.promise && $scope.promise.isPending()) {
                                     return;
                                 }
                                 lastParamsString = newParamsString;
-
-                                if(request) {
-                                    $timeout.cancel(request);
-                                }
 
                                 if($scope.promise && $scope.promise.isPending()) {
                                     $scope.promise.cancel();
                                 }
 
-								request = $timeout(function() {
-									$scope.transcludeScope.error = null;
+                                $scope.transcludeScope.error = null;
 
-									$scope.promise = resource.getLink($scope.rel, params, invalidate).then(function(result) {
-											var args = {}
+                                var args = {}
 
-											if($scope.resourceAs) {
-												$scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
-											}
+                                $scope.promise = resource.getLink($scope.rel, params, invalidate)
+                                    .then(function(result) {
+                                        if($scope.resourceAs) {
+                                            $scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
+                                        }
 
-
-											args[$scope.as || $scope.rel] = result.items;
-
-											$scope.pages = result.pages;
-											//$scope.limit = '' + result.limit;
-											$scope.page = '' + result.page;
-											$scope.result = result;
-
-											$scope.onLoad(args);
-
-										}.bind(this),
-											function(error) {
-												$scope.transcludeScope.error = error;
-											}.bind(this));
-								}.bind(this), 50);
-
+                                        $scope.pages = result.pages;
+                                        $scope.page = '' + result.page;
+                                        $scope.result = result;
+                                        return result.getLink('items');
+                                    })
+                                    .then(function(items) {
+                                        $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = items;
+                                        $scope.onLoad(args);
+                                    }, function(error) {
+                                        $scope.transcludeScope.error = error;
+                                    });
 							}
-						}.bind(this));
+						});
 				}
-			}.bind(this);
+			}
 
             $scope.$watch('if', fetch);
             $scope.$watch('page', fetch);
@@ -151,10 +142,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
             $scope.$watch('orderField', fetch);
             $scope.$watch('orderDirection', fetch);
             $scope.$watch('resource', fetch);
-
-            $scope.$watch('result.items', function(items) {
-                $scope.transcludeScope[$scope.as || $scope.rel] = items;
-            }.bind(this), true);
 
             $scope.$watch('labelPrefix', function() {
                 $scope.labelPrefix = ((!$scope.labelPrefix || $scope.labelPrefix === '') ? 'general.list' : $scope.labelPrefix);

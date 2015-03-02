@@ -6,7 +6,10 @@
     "Jascha Dachtera <jascha.dachtera@gmail.com>"
   ],
   "description": "HATEOAS helper service & directives",
-  "main": "dist/uebb-angular-hateoas.js",
+  "main": [
+    "dist/uebb-angular-hateoas.js",
+    "dist/uebb-angular-hateoas.templates.js"
+  ],
   "keywords": [
     "angular",
     "hateoas",

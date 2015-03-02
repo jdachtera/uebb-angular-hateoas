@@ -36,7 +36,7 @@
 
 		<div ng-show="transcludeScope.error">
 			{{ labelPrefix + '.error' | translate }}
-			{{trancludeScope.error}}
+			{{transcludeScope.error}}
 		</div>
 
 		<div ng-show="promise.isResolved() && !transcludeScope.error && transcludeScope[as || rel].length === 0">

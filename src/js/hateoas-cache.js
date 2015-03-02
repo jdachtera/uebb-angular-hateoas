@@ -52,7 +52,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @param {string} href -  The url
          * @returns {$q}
          */
-        function getCached$q(href) {
+        function getCachedPromise(href) {
             href = hateoasUtil.normalizeUrl(href);
             if (cache.hasOwnProperty(href) && cache[href].promise instanceof  $q && !cache[href].promise.isRejected() && !cache[href].invalid) {
                 return cache[href].promise;
@@ -209,6 +209,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
          * @returns {HateoasResource}
          */
         function getCtor(contentType) {
+
             if (!contentTypeCtorMap[contentType]) {
                 for (var pattern in contentTypeCtorMap) {
                     if (contentTypeCtorMap.hasOwnProperty(pattern)) {
@@ -366,7 +367,7 @@ angular.module('uebb.hateoas').factory('hateoasCache',
             addToCache: addToCache,
             getCached: getCached,
             getCachedHeader: getCachedHeader,
-            getCached$q: getCached$q,
+            getCachedPromise: getCachedPromise,
             invalidateCache: invalidateCache,
             invalidateMatching: invalidateMatching,
             invalidateRelated: invalidateRelated,

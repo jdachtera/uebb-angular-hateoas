@@ -356,8 +356,8 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @returns {Array}
          */
         HateoasResource.prototype.getChanges = function () {
-            var oldData = hateoasUtil.removeVirtualLinks(hateoasUtil.getNormalizedData(this.$originalData));
-            var newData = hateoasUtil.removeVirtualLinks(this.getData());
+            var oldData = hateoasUtil.getNormalizedData(this.$originalData);
+            var newData = this.getData();
 
             var oldLinks = oldData[hateoasUtil.linksProperty];
             var newLinks = newData[hateoasUtil.linksProperty];

@@ -55,14 +55,11 @@ angular.module('uebb.hateoas')
                                     $scope.promise.cancel();
                                 }
 
-
-
                                 $scope.promise = resource.getLink($scope.rel, null, ignoreCache)
                                     .then(function(result) {
                                         var args = {};
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = result;
                                         $scope.onLoad(args);
-
                                     }, function(error) {
                                         $scope.transcludeScope.error = error;
                                     })
