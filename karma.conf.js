@@ -18,6 +18,7 @@ module.exports = function(config) {
       'bower_components/jquery/dist/jquery.js',
       'bower_components/bluebird/js/browser/bluebird.js',
       'bower_components/URIjs/src/URI.js',
+      'bower_components/URIjs/src/URITemplate.js',
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-translate/angular-translate.js',

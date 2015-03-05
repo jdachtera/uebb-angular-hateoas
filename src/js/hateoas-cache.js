@@ -245,11 +245,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
 
                         if (cachedResource) {
                             setCached(url, cachedResource, headers, null);
-                            var localChanges = cachedResource.getChanges();
+                            var localChanges = cachedResource.getPatch();
 
                             return cachedResource.setData(resource.getData())
                                 .then(function() {
-                                    cachedResource.applyChanges(localChanges);
+                                    cachedResource.applyPatch(localChanges);
                                     return cachedResource;
                                 });
                         }

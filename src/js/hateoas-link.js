@@ -12,6 +12,7 @@ angular.module('uebb.hateoas')
                 resource: '=',
                 rel: '@',
                 as: '@',
+                params: '&',
                 labelPrefix: '@',
                 disableSpinner: '=?',
                 update: '=?',
@@ -55,7 +56,7 @@ angular.module('uebb.hateoas')
                                     $scope.promise.cancel();
                                 }
 
-                                $scope.promise = resource.getLink($scope.rel, null, ignoreCache)
+                                $scope.promise = resource.getLink($scope.rel, $scope.params(), ignoreCache)
                                     .then(function(result) {
                                         var args = {};
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = result;

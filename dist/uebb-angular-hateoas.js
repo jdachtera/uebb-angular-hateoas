@@ -1,4 +1,4 @@
-angular.module('uebb.hateoas', ['pascalprecht.translate', 'uebb.hateoas.templates']);
+angular.module('uebb.hateoas', ['pascalprecht.translate']);
 
 /**
  * Directive delete-resource
@@ -167,7 +167,28 @@ angular.module('uebb.hateoas').factory('HateoasResource',
         };
 
         /**
-         * Get the resource out of a link
+         * Get the resources out of a link
+         * @public
+         * @instance
+         *
+         * @param {string} rel - The relation name to fetch
+         * @param {{}} [params] - Additional GET params to append to the link url
+         * @param {boolean} [ignoreCache=false] - Ignore the hateoas resource cache
+         * @returns {Promise}
+         */
+        HateoasResource.prototype.getLinks = function (rel, params, ignoreCache) {
+            var hrefs = this.getHrefs(rel);
+            if (hrefs.length) {
+                return Promise.all(hrefs.map(function (href) {
+                    return HateoasResource.get(href, params, ignoreCache);
+                }));
+            } else {
+                return Promise.reject('Link not found ' + rel);
+            }
+        };
+
+        /**
+         * Get the first resource out of a link
          * @public
          * @instance
          *
@@ -177,62 +198,85 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          * @returns {Promise}
          */
         HateoasResource.prototype.getLink = function (rel, params, ignoreCache) {
-            var href = this.getHref(rel);
-            if (angular.isArray(href)) {
-                return Promise.all(href.map(function (href) {
-                    return HateoasResource.get(href, params, ignoreCache);
-                }));
-            }
-            else if (href) {
+            var href = this.getHref(rel, params);
+            if (href) {
                 return HateoasResource.get(href, params, ignoreCache);
-            }
-            else {
-                return Promise.reject(new Error('Link not found: ' + rel));
+            } else {
+                return Promise.reject('Link not found ' + rel);
             }
         };
 
         /**
-         * Set a link to a resource in memory. The changes are saved after a .save() call
+         * Set a link to a resource in memory overwriting existing links of the given relation. The changes are saved after a .save() call
          * @public
          * @instance
          *
          * @param {string} rel - The relation name of the link
          * @param {HateoasResource} resource - The resource to link
-         * @param {boolean} [unique=false] - Set the link as singular link instead of a collection
          * @returns void
          */
         HateoasResource.prototype.setLink = function (rel, resource, unique) {
-            this.setHref(rel, resource.getHref('self'), unique);
+            this.setHref(rel, resource.getHref('self'));
         };
 
         /**
-         * Get the href(s) of a link
+         * Add a link to a resource in memory. The changes are saved after a .save() call
+         * @public
+         * @instance
+         *
+         * @param {string} rel - The relation name of the link
+         * @param {HateoasResource} resource - The resource to link
+         */
+        HateoasResource.prototype.addLink = function (rel, resource) {
+            this.addHref(rel, resource.getHref('self'));
+        };
+
+        /**
+         * Get the hrefs of a link
          * @public
          * @instance
          *
          * @param {string} rel - The relation name
          * @param {{}} [params] - Additional GET params to add to the resulting URL
-         * @returns {{}|array} - The href or an array of hrefs
+         * @returns {array} - The array of hrefs
          */
-        HateoasResource.prototype.getHref = function (rel, params) {
-            var parts = rel.split('/');
-            rel = parts.shift();
-            var additional = parts.join('/');
-
+        HateoasResource.prototype.getHrefs = function (rel, params) {
             if (params) {
                 params = hateoasUtil.flatten(params);
             }
 
+            var links = [];
+
             if (angular.isArray(this.$links[rel])) {
-                return this.$links[rel].map(function (link) {
-                    return hateoasUtil.addParamsToUrl(hateoasUtil.mergeLink(link.href, additional), params);
-                });
+                links.push.apply(links, this.$links[rel]);
+            } else if (this.$links[rel]) {
+                links.push(this.$links[rel]);
             }
-            else if (this.$links[rel]) {
-                return hateoasUtil.addParamsToUrl(hateoasUtil.mergeLink(this.$links[rel].href, additional), params);
+
+            return links.map(function (link) {
+                return hateoasUtil.expandUriTemplate(decodeURI(link.href), params);
+            });
+
+        };
+
+        /**
+         * Get the first href of a link
+         * @public
+         * @instance
+         *
+         * @param {string} rel - The relation name
+         * @param {{}} [params] - Additional GET params to add to the resulting URL
+         * @returns {string} - The href
+         */
+        HateoasResource.prototype.getHref = function (rel, params) {
+            var link = null;
+            if (angular.isArray(this.$links[rel]) && this.$links[rel].length) {
+                link = this.$links[rel][0];
+            } else if (this.$links[rel]) {
+                link = this.$links[rel];
             }
-            else {
-                return null;
+            if (link) {
+                return hateoasUtil.expandUriTemplate(decodeURI(link.href), params);
             }
         };
 
@@ -388,28 +432,32 @@ angular.module('uebb.hateoas').factory('HateoasResource',
         };
 
         /**
-         * Set a link to an URI locally
+         * Set a link to an URI locally. Overwrites existing links of this rel
          * @instance
          *
          * @param {string} rel - The relation name
          * @param {string} href - The target URI
-         * @param {boolean} [unique=false] - Set the link as singular instead of multiple even if there were previous links
          * @returns {void}
          */
-        HateoasResource.prototype.setHref = function (rel, href, unique) {
-            if (unique) {
-                this.$links[rel] = {href: href};
-            }
-            else {
-                if (!angular.isArray(this.$links[rel])) {
-                    var links = [];
-                    if (this.$links[rel]) {
-                        links.push(this.$links[rel]);
-                    }
-                    this.$links[rel] = links;
+        HateoasResource.prototype.setHref = function (rel, href) {
+            this.$links[rel] = {href: href};
+        };
+
+        /**
+         * Add a link to an URI locally while keeping existing links.
+         *
+         * @param rel
+         * @param href
+         */
+        HateoasResource.prototype.addHref = function (rel, href) {
+            if (!angular.isArray(this.$links[rel])) {
+                var links = [];
+                if (this.$links[rel]) {
+                    links.push(this.$links[rel]);
                 }
-                this.$links[rel].push({href: href});
+                this.$links[rel] = links;
             }
+            this.$links[rel].push({href: href});
         };
 
         /**
@@ -443,9 +491,15 @@ angular.module('uebb.hateoas').factory('HateoasResource',
             return Promise.resolve($http(conf))
                 .then(function (response) {
                     if (response.status === 201) {
-                        this.setHref('self', response.headers('Location'), true);
-                        this.id = this.getHref('self').split('/').pop();
+                        if (angular.isArray(response.data)) {
+                            this.applyPatch(response.data);
+                        } else {
+                            // Hack self link and id from Location header
+                            this.setHref('self', response.headers('Location'), true);
+                            this.id = this.getHref('self').split('/').pop();
+                        }
                         this.$originalData = this.getData();
+                        console.log(this.$originalData);
                     }
                     return this;
 
@@ -459,92 +513,15 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          *
          * @returns {Array}
          */
-        HateoasResource.prototype.getChanges = function () {
+        HateoasResource.prototype.getPatch = function () {
             var oldData = hateoasUtil.getNormalizedData(this.$originalData);
             var newData = this.getData();
 
-            var oldLinks = oldData[hateoasUtil.linksProperty];
-            var newLinks = newData[hateoasUtil.linksProperty];
-
-            var arrayUnique = function (a) {
-                return a.reduce(function (p, c) {
-                    if (p.indexOf(c) < 0) {
-                        p.push(c);
-                    }
-                    return p;
-                }, []);
-            };
-
-            var props = arrayUnique([].concat(Object.keys(oldData), Object.keys(newData)));
-            props.splice(props.indexOf(hateoasUtil.linksProperty), 1);
-
-            var patch = [];
-
-            angular.forEach(props, function (property) {
-                if (JSON.stringify(oldData[property]) !== JSON.stringify(newData[property])) {
-                    patch.push({op: 'replace', path: '/' + property, value: newData[property]});
-                }
-            });
-
-            var rels = arrayUnique([].concat(Object.keys(oldData[hateoasUtil.linksProperty]), Object.keys(newData[hateoasUtil.linksProperty])));
-
-            angular.forEach(rels, function (rel) {
-                var currentOldLinks = [], currentNewLinks = [];
-
-                if (angular.isArray(oldLinks[rel])) {
-                    currentOldLinks = oldLinks[rel];
-                }
-                else {
-                    if (oldLinks[rel]) {
-                        currentOldLinks.push(oldLinks[rel]);
-                    }
-                }
-                if (angular.isArray(newLinks[rel])) {
-                    currentNewLinks = newLinks[rel];
-                }
-                else {
-                    if (newLinks[rel]) {
-                        currentNewLinks.push(newLinks[rel]);
-                    }
-                }
-
-                var removed = [];
-                angular.forEach(currentOldLinks, function (oldLink) {
-                    var isInNew = false;
-                    angular.forEach(currentNewLinks, function (newLink) {
-                        if (oldLink.href === newLink.href) {
-                            isInNew = true;
-                        }
-                    });
-                    if (!isInNew) {
-                        removed.push(oldLink);
-                    }
-                });
-                if (removed.length) {
-                    patch.push({op: 'remove', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: removed});
-                }
-
-                var added = [];
-
-                angular.forEach(currentNewLinks, function (newLink) {
-                    var isInOld = false;
-                    angular.forEach(currentOldLinks, function (oldLink) {
-                        if (oldLink.href === newLink.href) {
-                            isInOld = true;
-                        }
-                    });
-                    if (!isInOld) {
-                        added.push(newLink);
-                    }
-                });
-                if (added.length) {
-                    patch.push({op: 'add', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: added});
-                }
-
-            });
-
-            return patch;
+            return hateoasUtil.getPatch(oldData, newData);
         };
+
+
+
 
         /**
          * Reset all local changes
@@ -570,7 +547,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          *
          * @param {array} changes - The changes in JSON-Patch format
          */
-        HateoasResource.prototype.applyChanges = function (changes) {
+        HateoasResource.prototype.applyPatch = function (changes) {
             angular.forEach(changes, function (action) {
                 var pathParts = action.path.split('/');
                 pathParts.shift();
@@ -661,7 +638,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
          */
         HateoasResource.prototype.patch = function (touch) {
             var url = this.getHref('self'),
-                patch = this.getChanges();
+                patch = this.getPatch();
 
             if (patch.length === 0 && !touch) {
                 return Promise.resolve(this);
@@ -761,7 +738,7 @@ angular.module('uebb.hateoas').factory('HateoasResource',
         };
 
         /**
-         * Set a default header for vall hateoas requests
+         * Set a default header for all hateoas requests
          * @static
          *
          * @param {string} key - The header name
@@ -1069,11 +1046,11 @@ angular.module('uebb.hateoas').factory('hateoasCache',
 
                         if (cachedResource) {
                             setCached(url, cachedResource, headers, null);
-                            var localChanges = cachedResource.getChanges();
+                            var localChanges = cachedResource.getPatch();
 
                             return cachedResource.setData(resource.getData())
                                 .then(function() {
-                                    cachedResource.applyChanges(localChanges);
+                                    cachedResource.applyPatch(localChanges);
                                     return cachedResource;
                                 });
                         }
@@ -1257,6 +1234,7 @@ angular.module('uebb.hateoas')
                 resource: '=',
                 rel: '@',
                 as: '@',
+                params: '&',
                 labelPrefix: '@',
                 disableSpinner: '=?',
                 update: '=?',
@@ -1300,7 +1278,7 @@ angular.module('uebb.hateoas')
                                     $scope.promise.cancel();
                                 }
 
-                                $scope.promise = resource.getLink($scope.rel, null, ignoreCache)
+                                $scope.promise = resource.getLink($scope.rel, $scope.params(), ignoreCache)
                                     .then(function(result) {
                                         var args = {};
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = result;
@@ -1356,10 +1334,9 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 			limit: '@',
 			bare: '=?',
 			order: '@',
-			where: '=?',
-			filter: '=?',
+			where: '@',
 			page: '@',
-			search: '=?',
+			search: '@',
 			update: '=?',
 			orderFields: '=?',
 			orderField: '@',
@@ -1432,12 +1409,10 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                     limit:  $scope.limit,
                                     order: order.join(','),
                                     where: $scope.where || '',
-                                    filter: $scope.filter ,
                                     page:  $scope.page
                                 };
 
-
-
+                                // Make sure we don't trigger the same request many times because of the multiple watchers
                                 var newParamsString = JSON.stringify(params);
                                 if (newParamsString === lastParamsString && !update && $scope.promise && $scope.promise.isPending()) {
                                     return;
@@ -1457,11 +1432,10 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                         if($scope.resourceAs) {
                                             $scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
                                         }
-
                                         $scope.pages = result.pages;
                                         $scope.page = '' + result.page;
                                         $scope.result = result;
-                                        return result.getLink('items');
+                                        return result.getLinks('items');
                                     })
                                     .then(function(items) {
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = items;
@@ -1506,7 +1480,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                     fetch();
                 }
             });
-
 
 		}]
 	};
@@ -1718,6 +1691,18 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 }
                 return url;
             },
+            expandUriTemplate: function(url, params) {
+                if (params) {
+                    params = hateoasUtil.flatten(params);
+                    var url = URI.expand(url, function(key) {
+                        var value = params[key];
+                        delete(params[key]);
+                        return value;
+                    }).toString();
+                    return this.addParamsToUrl(url);
+                }
+                return url;
+            },
             /**
              * Creates a FormData object from a hashmap
              *
@@ -1725,7 +1710,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
              * @returns {FormData}
              */
             convertJsonToFormData: function convertJsonToFormData(data) {
-
                 var formData = new FormData();
                 data = hateoasUtil.flatten(data);
                 Object.keys(data).forEach(function (key) {
@@ -1867,6 +1851,90 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 else {
                     return link;
                 }
+            },
+
+            getPatch: function(oldData, newData) {
+                var oldLinks = oldData[hateoasUtil.linksProperty];
+                var newLinks = newData[hateoasUtil.linksProperty];
+
+                var arrayUnique = function (a) {
+                    return a.reduce(function (p, c) {
+                        if (p.indexOf(c) < 0) {
+                            p.push(c);
+                        }
+                        return p;
+                    }, []);
+                };
+
+                var props = arrayUnique([].concat(Object.keys(oldData), Object.keys(newData)));
+                props.splice(props.indexOf(hateoasUtil.linksProperty), 1);
+
+                var patch = [];
+
+                angular.forEach(props, function (property) {
+                    if (JSON.stringify(oldData[property]) !== JSON.stringify(newData[property])) {
+                        patch.push({op: 'replace', path: '/' + property, value: newData[property]});
+                    }
+                });
+
+                var rels = arrayUnique([].concat(Object.keys(oldData[hateoasUtil.linksProperty]), Object.keys(newData[hateoasUtil.linksProperty])));
+
+                angular.forEach(rels, function (rel) {
+                    var currentOldLinks = [], currentNewLinks = [];
+
+                    if (angular.isArray(oldLinks[rel])) {
+                        currentOldLinks = oldLinks[rel];
+                    }
+                    else {
+                        if (oldLinks[rel]) {
+                            currentOldLinks.push(oldLinks[rel]);
+                        }
+                    }
+                    if (angular.isArray(newLinks[rel])) {
+                        currentNewLinks = newLinks[rel];
+                    }
+                    else {
+                        if (newLinks[rel]) {
+                            currentNewLinks.push(newLinks[rel]);
+                        }
+                    }
+
+                    var removed = [];
+                    angular.forEach(currentOldLinks, function (oldLink) {
+                        var isInNew = false;
+                        angular.forEach(currentNewLinks, function (newLink) {
+                            if (oldLink.href === newLink.href) {
+                                isInNew = true;
+                            }
+                        });
+                        if (!isInNew) {
+                            removed.push(oldLink);
+                        }
+                    });
+                    if (removed.length) {
+                        patch.push({op: 'remove', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: removed});
+                    }
+
+                    var added = [];
+
+                    angular.forEach(currentNewLinks, function (newLink) {
+                        var isInOld = false;
+                        angular.forEach(currentOldLinks, function (oldLink) {
+                            if (oldLink.href === newLink.href) {
+                                isInOld = true;
+                            }
+                        });
+                        if (!isInOld) {
+                            added.push(newLink);
+                        }
+                    });
+                    if (added.length) {
+                        patch.push({op: 'add', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: added});
+                    }
+
+                });
+
+                return patch;
             }
         };
 

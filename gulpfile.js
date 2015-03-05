@@ -15,7 +15,7 @@ gulp.task('js', function () {
 
 gulp.task('templates', function () {
 
-    return gulp.src('src/templates/*.html').pipe(gulpPlugins.angularTemplatecache('templates.js', {module:'uebb.hateoas.templates', standalone: true, root: 'uebb_hateoas_templates'}))
+    return gulp.src('src/templates/*.html').pipe(gulpPlugins.angularTemplatecache('templates.js', {module:'uebb.hateoas', root: 'uebb_hateoas_templates'}))
         .pipe(gulpPlugins.concat('uebb-angular-hateoas.templates.js'))
         .pipe(gulp.dest('dist'))
         .pipe(gulpPlugins.uglify())

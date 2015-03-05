@@ -17,10 +17,9 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
 			limit: '@',
 			bare: '=?',
 			order: '@',
-			where: '=?',
-			filter: '=?',
+			where: '@',
 			page: '@',
-			search: '=?',
+			search: '@',
 			update: '=?',
 			orderFields: '=?',
 			orderField: '@',
@@ -93,12 +92,10 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                     limit:  $scope.limit,
                                     order: order.join(','),
                                     where: $scope.where || '',
-                                    filter: $scope.filter ,
                                     page:  $scope.page
                                 };
 
-
-
+                                // Make sure we don't trigger the same request many times because of the multiple watchers
                                 var newParamsString = JSON.stringify(params);
                                 if (newParamsString === lastParamsString && !update && $scope.promise && $scope.promise.isPending()) {
                                     return;
@@ -118,11 +115,10 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                                         if($scope.resourceAs) {
                                             $scope.transcludeScope[$scope.resourceAs] = args[$scope.resourceAs] = result;
                                         }
-
                                         $scope.pages = result.pages;
                                         $scope.page = '' + result.page;
                                         $scope.result = result;
-                                        return result.getLink('items');
+                                        return result.getLinks('items');
                                     })
                                     .then(function(items) {
                                         $scope.transcludeScope[$scope.as || $scope.rel] = args[$scope.as || $scope.rel] = items;
@@ -167,7 +163,6 @@ angular.module('uebb.hateoas').directive('hateoasList', function() {
                     fetch();
                 }
             });
-
 
 		}
 	};

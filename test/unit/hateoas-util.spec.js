@@ -147,4 +147,14 @@ describe('Unit: hateoasUtil', function() {
         });
     });
 
+    describe('.expandUriTemplate()', function() {
+        it('should expand the uri template', function() {
+            var template = 'http://domain.com/users/{id}{?q}',
+                params = {id: '123', q: 'test'},
+                expectedUrl =  'http://domain.com/users/123?q=test';
+
+            expect(this.hateoasUtil.expandUriTemplate(template, params)).toEqual(expectedUrl);
+        });
+    });
+
 });

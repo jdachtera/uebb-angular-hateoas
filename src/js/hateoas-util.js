@@ -112,6 +112,18 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 }
                 return url;
             },
+            expandUriTemplate: function(url, params) {
+                if (params) {
+                    params = hateoasUtil.flatten(params);
+                    var url = URI.expand(url, function(key) {
+                        var value = params[key];
+                        delete(params[key]);
+                        return value;
+                    }).toString();
+                    return this.addParamsToUrl(url);
+                }
+                return url;
+            },
             /**
              * Creates a FormData object from a hashmap
              *
@@ -119,7 +131,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
              * @returns {FormData}
              */
             convertJsonToFormData: function convertJsonToFormData(data) {
-
                 var formData = new FormData();
                 data = hateoasUtil.flatten(data);
                 Object.keys(data).forEach(function (key) {
@@ -261,6 +272,90 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                 else {
                     return link;
                 }
+            },
+
+            getPatch: function(oldData, newData) {
+                var oldLinks = oldData[hateoasUtil.linksProperty];
+                var newLinks = newData[hateoasUtil.linksProperty];
+
+                var arrayUnique = function (a) {
+                    return a.reduce(function (p, c) {
+                        if (p.indexOf(c) < 0) {
+                            p.push(c);
+                        }
+                        return p;
+                    }, []);
+                };
+
+                var props = arrayUnique([].concat(Object.keys(oldData), Object.keys(newData)));
+                props.splice(props.indexOf(hateoasUtil.linksProperty), 1);
+
+                var patch = [];
+
+                angular.forEach(props, function (property) {
+                    if (JSON.stringify(oldData[property]) !== JSON.stringify(newData[property])) {
+                        patch.push({op: 'replace', path: '/' + property, value: newData[property]});
+                    }
+                });
+
+                var rels = arrayUnique([].concat(Object.keys(oldData[hateoasUtil.linksProperty]), Object.keys(newData[hateoasUtil.linksProperty])));
+
+                angular.forEach(rels, function (rel) {
+                    var currentOldLinks = [], currentNewLinks = [];
+
+                    if (angular.isArray(oldLinks[rel])) {
+                        currentOldLinks = oldLinks[rel];
+                    }
+                    else {
+                        if (oldLinks[rel]) {
+                            currentOldLinks.push(oldLinks[rel]);
+                        }
+                    }
+                    if (angular.isArray(newLinks[rel])) {
+                        currentNewLinks = newLinks[rel];
+                    }
+                    else {
+                        if (newLinks[rel]) {
+                            currentNewLinks.push(newLinks[rel]);
+                        }
+                    }
+
+                    var removed = [];
+                    angular.forEach(currentOldLinks, function (oldLink) {
+                        var isInNew = false;
+                        angular.forEach(currentNewLinks, function (newLink) {
+                            if (oldLink.href === newLink.href) {
+                                isInNew = true;
+                            }
+                        });
+                        if (!isInNew) {
+                            removed.push(oldLink);
+                        }
+                    });
+                    if (removed.length) {
+                        patch.push({op: 'remove', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: removed});
+                    }
+
+                    var added = [];
+
+                    angular.forEach(currentNewLinks, function (newLink) {
+                        var isInOld = false;
+                        angular.forEach(currentOldLinks, function (oldLink) {
+                            if (oldLink.href === newLink.href) {
+                                isInOld = true;
+                            }
+                        });
+                        if (!isInOld) {
+                            added.push(newLink);
+                        }
+                    });
+                    if (added.length) {
+                        patch.push({op: 'add', path: '/' + hateoasUtil.linksProperty + '/' + rel, value: added});
+                    }
+
+                });
+
+                return patch;
             }
         };
 
