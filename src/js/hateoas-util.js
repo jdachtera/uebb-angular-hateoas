@@ -82,9 +82,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                                 recurse(cur[p], prop ? prop + "[" + p + "]" : p);
                             }
                         }
-                        if (isEmpty) {
-                            result[prop] = {};
-                        }
                     }
                 }
 
@@ -133,6 +130,7 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
             convertJsonToFormData: function convertJsonToFormData(data) {
                 var formData = new FormData();
                 data = hateoasUtil.flatten(data);
+                console.log('data', data);
                 Object.keys(data).forEach(function (key) {
                     formData.append(key, data[key]);
                 });

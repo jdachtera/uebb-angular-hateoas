@@ -491,7 +491,8 @@ angular.module('uebb.hateoas').factory('HateoasResource',
             return Promise.resolve($http(conf))
                 .then(function (response) {
                     if (response.status === 201) {
-                        if (angular.isArray(response.data)) {
+
+                        if (response.headers('Content-Type') === 'application/json-patch+json' && angular.isArray(response.data)) {
                             this.applyPatch(response.data);
                         } else {
                             // Hack self link and id from Location header
@@ -499,7 +500,6 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                             this.id = this.getHref('self').split('/').pop();
                         }
                         this.$originalData = this.getData();
-                        console.log(this.$originalData);
                     }
                     return this;
 
@@ -652,6 +652,9 @@ angular.module('uebb.hateoas').factory('HateoasResource',
                 withCredentials: true
             }))
                 .then(function (response) {
+                    if (response.headers('Content-Type') === 'application/json-patch+json') {
+                        this.applyPatch(response.data);
+                    }
                     this.$originalData = this.getData();
                     return this;
                 }.bind(this), defaultErrorCallback);
@@ -1661,9 +1664,6 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
                                 recurse(cur[p], prop ? prop + "[" + p + "]" : p);
                             }
                         }
-                        if (isEmpty) {
-                            result[prop] = {};
-                        }
                     }
                 }
 
@@ -1712,6 +1712,7 @@ angular.module('uebb.hateoas').factory('hateoasUtil',
             convertJsonToFormData: function convertJsonToFormData(data) {
                 var formData = new FormData();
                 data = hateoasUtil.flatten(data);
+                console.log('data', data);
                 Object.keys(data).forEach(function (key) {
                     formData.append(key, data[key]);
                 });
